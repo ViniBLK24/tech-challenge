@@ -14,10 +14,10 @@ export default function Home() {
       </nav>
       {/* Botões */}
       <div className="flex gap-4">
-        <button className="border border-green-500 text-green-500 px-4 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer">
+        <button className="border border-pattern-green text-pattern-green px-4 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer">
   Abrir minha conta
 </button>
-        <button className="border border-green-500 text-green-500 px-4 py-2 rounded hover:bg-green-500 hover:text-black font-semibold cursor-pointer">
+        <button className="border border-pattern-green text-pattern-green px-4 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer">
           Já tenho conta
         </button>
       </div>
