@@ -16,19 +16,19 @@ import BackgroundShapes from "./ui/BackgroundShapes";
 
 export default function TransactionActions() {
   return (
-    <Card className="bg-[#F5F5F5] relative py-10 md:h-[490px]">
+    <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:h-[490px]">
       <BackgroundShapes y="top-0" x="right-0" />
 
       <BackgroundShapes y="bottom-0" x="left-0" />
 
-      <div className="flex flex-col gap-8 md:w-[60%] md:px-5 md:gap-4 lg:w-[55%]">
+      <div className="flex flex-col md:w-[60%] md:px-5 md:gap-4 lg:w-[55%]">
         <CardHeader className="flex flex-col items-center md:items-start">
           <CardTitle className="text-3xl">Nova transação</CardTitle>
         </CardHeader>
 
         <CardContent>
           {/* Transaction form */}
-          <form className="flex flex-col gap-y-8 mt-6 md:mt-0">
+          <form className="flex flex-col gap-y-8 mt-3 md:mt-0">
             <Select>
               <SelectTrigger className="w-[100%] z-1 cursor-pointer">
                 <SelectValue placeholder="Selecione o tipo de transação" />
@@ -65,7 +65,7 @@ export default function TransactionActions() {
               className={cn(
                 buttonVariants({ size: "lg" }),
 
-                "bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[50%] md:min-w-50"
+                "bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
               )}
             >
               Concluir transação
@@ -79,7 +79,7 @@ export default function TransactionActions() {
             alt="Ilustração de uma mulher segurando um cartão de crédito"
             height={300}
             width={300}
-            className="z-0 pointer-events-none md:hidden"
+            className="z-0 pointer-events-none -mb-5 md:hidden"
           ></Image>
         </CardContent>
       </div>
