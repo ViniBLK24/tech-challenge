@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 export default function TabletMenu() {
   return (
-    <div className="hidden px-4 md:block lg:hidden">
+    <div className="hidden md:block md:px-4 md:mb-6 lg:hidden">
       <ul className="grid grid-cols-4 gap-6 pt-0 relative">
         <MenuLink isCurrent={true}>Início</MenuLink>
         <MenuLink isCurrent={false}>Transferências</MenuLink>
