@@ -1,6 +1,8 @@
 import SideMenu from "@/components/SideMenu";
 import DashboardMenu from "@/components/DashboardMenu";
 import TabletMenu from "@/components/TabletMenu";
+import WelcomeCard from "@/components/WelcomeCard";
+import TransactionActions from "@/components/TransactionAction";
 
 export default function Dashboard() {
   return (
@@ -12,7 +14,10 @@ export default function Dashboard() {
             <TabletMenu />
             <SideMenu />
           </div>
-          <div className="flex flex-col gap-4 col-span-4"></div>
+          <div className="flex flex-col gap-4 col-span-4">
+            <WelcomeCard />
+            <TransactionActions />
+          </div>
           <div className="h-[100%] bg-secondary col-span-2">Transações</div>
         </div>
       </div>
