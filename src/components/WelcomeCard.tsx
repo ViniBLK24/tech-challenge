@@ -28,7 +28,7 @@ const formatCurrentDate = () => {
   return capitalizeFirstLetter(formattedDate);
 };
 
-export default function WelcomeCard() {
+export default function WelcomeCard({ balance }: { balance: number }) {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   function onEyeClick() {
@@ -63,7 +63,7 @@ export default function WelcomeCard() {
         <div>
           <p className="text-white text-md">Conta Corrente</p>
           <p className="text-white font-semibold text-2xl">
-            R$ {isBalanceHidden ? "••••••" : "2.450,10"}
+            R$ {isBalanceHidden ? "••••••" : balance}
           </p>
         </div>
       </CardContent>

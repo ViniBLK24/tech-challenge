@@ -20,13 +20,17 @@ import { createTransaction } from "@/utils/api";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 
+type Props = {
+  onSubmit: (data: []) => void;
+};
+
 // Error messages from errorCodes the API will send
 const ERROR_CODES = {
   5000: { title: "Campos obrigatórios", desc: "Preencha todos os campos" },
   5001: "Tipo de transferência inválido.",
 };
 
-export default function TransactionActions() {
+export default function TransactionActions({ onSubmit }: Props) {
   const [type, setType] = useState<TransactionTypeEnum>();
   const [amount, setAmount] = useState("");
 
@@ -56,6 +60,8 @@ export default function TransactionActions() {
 
       if (response.transactions) {
         setAmount("");
+        setType("");
+        onSubmit(response.transactions);
         toast({
           title: "Sucesso!",
           description: "Transação concluída.",
@@ -99,6 +105,7 @@ export default function TransactionActions() {
             className="flex flex-col gap-y-8 mt-3 md:mt-0"
           >
             <Select
+              value={type}
               onValueChange={(value) => setType(value as TransactionTypeEnum)}
             >
               <SelectTrigger
