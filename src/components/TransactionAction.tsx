@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Button, buttonVariants } from "./ui/Button";
 import {
@@ -9,12 +11,76 @@ import {
 } from "./ui/Select";
 import { Input } from "./ui/Input";
 import { Label } from "./ui/Label";
-import { Toaster } from "./ui/Sonner";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import BackgroundShapes from "./ui/BackgroundShapes";
+import { TransactionTypeEnum, Transaction } from "@/types/transactions";
+import { useState } from "react";
+import { createTransaction } from "@/utils/api";
+import { Toaster } from "./ui/toaster";
+import { useToast } from "@/hooks/use-toast";
+
+// Error messages from errorCodes the API will send
+const ERROR_CODES = {
+  5000: { title: "Campos obrigatórios", desc: "Preencha todos os campos" },
+  5001: "Tipo de transferência inválido.",
+};
 
 export default function TransactionActions() {
+  const [type, setType] = useState<TransactionTypeEnum>();
+  const [amount, setAmount] = useState("");
+
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!type || !amount) {
+      toast({
+        title: "Campos obrigatórios!",
+        description: "Preencha todos os campos.",
+        variant: "warning",
+        duration: 4000,
+      });
+      return;
+    }
+
+    const transaction: Transaction = {
+      type,
+      amount: parseFloat(amount),
+    };
+
+    try {
+      const response = await createTransaction(transaction);
+      console.log(response);
+
+      if (response.transactions) {
+        setAmount("");
+        toast({
+          title: "Sucesso!",
+          description: "Transação concluída.",
+          variant: "success",
+          duration: 4000,
+        });
+      } else {
+        toast({
+          title: ERROR_CODES[err.errorCodes].title,
+          description: ERROR_CODES[err.errorCodes].desc,
+          variant: "warning",
+          duration: 4000,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      toast({
+        title: "Algo deu errado.",
+        description: "Falha na operação.",
+        variant: "destructive",
+        duration: 4000,
+      });
+    }
+  };
+
   return (
     <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:h-[490px]">
       <BackgroundShapes y="top-0" x="right-0" />
@@ -28,18 +94,32 @@ export default function TransactionActions() {
 
         <CardContent>
           {/* Transaction form */}
-          <form className="flex flex-col gap-y-8 mt-3 md:mt-0">
-            <Select>
-              <SelectTrigger className="w-[100%] z-1 cursor-pointer">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-y-8 mt-3 md:mt-0"
+          >
+            <Select
+              onValueChange={(value) => setType(value as TransactionTypeEnum)}
+            >
+              <SelectTrigger
+                value={type}
+                className="w-[100%] z-1 cursor-pointer"
+              >
                 <SelectValue placeholder="Selecione o tipo de transação" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="transfer" className="cursor-pointer">
+                <SelectItem
+                  value={TransactionTypeEnum.TRANSFER}
+                  className="cursor-pointer"
+                >
                   Transferência
                 </SelectItem>
 
-                <SelectItem value="deposit" className="cursor-pointer">
+                <SelectItem
+                  value={TransactionTypeEnum.DEPOSIT}
+                  className="cursor-pointer"
+                >
                   Depósito
                 </SelectItem>
               </SelectContent>
@@ -55,6 +135,8 @@ export default function TransactionActions() {
                 type="number"
                 min="0"
                 step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
                 className="w-[50%] md:w-[100%]"
                 placeholder="00,00"
               />
