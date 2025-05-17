@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tech Challenge - Fase 01
 
-## Getting Started
+Esse projeto é um trabalho da Fase 1 da Pós Graduação Front-end Avançado da Fiap.
 
-First, run the development server:
+## Proposta
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Desenvolver o frontend para um aplicação de gerenciamento financeiro utilizando Next.js e Design System.
+
+**O objetivo:**
+
+- Criar uma interface que permita aos usuários gerenciar suas transações financeiras;
+- Aplicar os conceitos de Programação Orientada a Objetos (POO).
+
+### Requisitos do desafio
+
+Estrutura e Design da Interface:
+
+**1.** **Home Page**
+
+- Página inicial simples que dá boas-vindas aos usuários;
+- Exibir informações sobre o saldo da conta corrente e um extrato das últimas transações;
+- Incluir uma seção para iniciar uma nova transação, com opções para selecionar o tipo de transação e inserir o valor.
+
+**2.** **Listagem de Transações**
+
+- Página que exibe a lista de transações realizadas, com opções para visualizar detalhes, editar e deletar cada transação.
+
+**3.** **Adicionar Nova Transação**
+
+- Página ou modal para adicionar uma nova transação ao banco de dados;
+- Formulário que deve incluir campos como tipo de transação (depósito, transferência, etc), valor e data.
+
+**4** **Editar Transação**
+
+- Uma página ou modal para editar as informações de uma transação existente.
+
+## Começando
+
+Para executar o código localmente siga as próximas etapas:
+
+### Instalação
+
+**1.** Clone o repositório:
+
+```sh
+  git clone https://github.com/ViniBLK24/tech-challenge.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**2.** Na pasta root, baixe as dependências do projeto:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   npm install
+```
 
-## Learn More
+**3.** Execute o seu projeto local:
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```sh
+   npm run dev
+```
