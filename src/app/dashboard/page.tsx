@@ -7,11 +7,12 @@ import WelcomeCard from "@/components/WelcomeCard";
 import TransactionActions from "@/components/TransactionAction";
 import { useEffect, useState } from "react";
 import { getTransactions } from "@/utils/api";
+import { Transaction } from "@/types/transactions";
 
 export default function Dashboard() {
   const [totalBalance, setTotalBalance] = useState(0);
 
-  function getTotalBalance(data: []) {
+  function getTotalBalance(data: Transaction[]): number {
     const total = data.reduce(
       (value, item) =>
         item.type === "deposit" ? value + item.amount : value - item.amount,

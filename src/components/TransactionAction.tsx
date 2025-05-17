@@ -24,10 +24,14 @@ type Props = {
   onSubmit: (data: []) => void;
 };
 
+enum ErrorCodeEnum {
+  REQUIRED_FIELDS = 5000,
+  INVALID_TRANSFER_TYPE = 5001,
+}
 // Error messages from errorCodes the API will send
-const ERROR_CODES = {
-  5000: { title: "Campos obrigatórios", desc: "Preencha todos os campos" },
-  5001: "Tipo de transferência inválido.",
+const ERROR_CODES: Record<ErrorCodeEnum, { title: string; desc: string }> = {
+  5000: { title: "Campos obrigatórios", desc: "Preencha todos os campos." },
+  5001: { title: "Tipo inválido", desc: "Tipo de transferência inválido." },
 };
 
 export default function TransactionActions({ onSubmit }: Props) {
@@ -69,9 +73,10 @@ export default function TransactionActions({ onSubmit }: Props) {
           duration: 4000,
         });
       } else {
+        const code = response.errorCode as ErrorCodeEnum;
         toast({
-          title: ERROR_CODES[err.errorCodes].title,
-          description: ERROR_CODES[err.errorCodes].desc,
+          title: ERROR_CODES[code].title,
+          description: ERROR_CODES[code].desc,
           variant: "warning",
           duration: 4000,
         });
