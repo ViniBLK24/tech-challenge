@@ -1,6 +1,6 @@
 # Tech Challenge - Fase 01
 
-Esse projeto é um trabalho da Fase 1 da Pós Graduação Front-end Avançado da Fiap.
+Esse projeto é um trabalho da Fase 1 da Pós Graduação Front-end Engineering da Fiap.
 
 ## Proposta
 
@@ -46,7 +46,7 @@ Para executar o código localmente siga as próximas etapas:
   git clone https://github.com/ViniBLK24/tech-challenge.git
 ```
 
-**2.** Na pasta root, baixe as dependências do projeto:
+**2.** Baixe as dependências do projeto:
 
 ```sh
 
