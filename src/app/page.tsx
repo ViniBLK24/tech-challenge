@@ -44,6 +44,27 @@ export default function Home() {
             >
               Serviços
             </a>
+            {/* Botões só no mobile */}
+            <div className="flex flex-col gap-2 mt-4 md:hidden">
+              <button
+                className="border border-pattern-green text-pattern-green px-3 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm"
+                onClick={() => {
+                  setSidebarOpen(false);
+                  router.push("/dashboard");
+                }}
+              >
+                Abrir minha conta
+              </button>
+              <button
+                className="border border-pattern-green text-pattern-green px-3 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm"
+                onClick={() => {
+                  setSidebarOpen(false);
+                  router.push("/dashboard");
+                }}
+              >
+                Já tenho conta
+              </button>
+            </div>
           </nav>
           {/* Clique fora fecha o menu */}
           <div className="flex-1" onClick={() => setSidebarOpen(false)} />
@@ -60,7 +81,8 @@ export default function Home() {
           <a href="#" className="text-pattern-green hover:text-white">Sobre</a>
           <a href="#" className="text-pattern-green hover:text-white">Serviços</a>
         </nav>
-        <div className="flex gap-2 md:gap-4">
+        {/* Botões só em tablet/desktop */}
+        <div className="hidden md:flex gap-2 md:gap-4">
           <button
             className="border border-pattern-green text-pattern-green px-3 py-2 md:px-4 md:py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm md:text-base"
             onClick={() => router.push("/dashboard")}
@@ -118,8 +140,8 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-left">Conta e cartão gratuitos</h3>
-              <p className="text-sm text-black mt-1 text-left">
+              <h3 className="font-semibold text-black text-center md:text-left">Conta e cartão gratuitos</h3>
+              <p className="text-sm text-black mt-1 text-center md:text-left">
                 Isso mesmo, nossa conta é digital, sem custo fixo e mais: uso grátis, sem tarifa de manutenção.
               </p>
             </div>
@@ -132,8 +154,8 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-left">Saques sem custo</h3>
-              <p className="text-sm text-black mt-1 text-left">
+              <h3 className="font-semibold text-black text-center md:text-left">Saques sem custo</h3>
+              <p className="text-sm text-black mt-1 text-center md:text-left">
                 Você pode sacar gratuitamente 4x por mês de qualquer Banco 24h.
               </p>
             </div>
@@ -146,8 +168,8 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-left">Programa de pontos</h3>
-              <p className="text-sm text-black mt-1 text-left">
+              <h3 className="font-semibold text-black text-center md:text-left">Programa de pontos</h3>
+              <p className="text-sm text-black mt-1 text-center md:text-left">
                 Você pode acumular pontos com suas compras no crédito sem pagar mensalidade!
               </p>
             </div>
@@ -160,8 +182,8 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-left">Seguro Dispositivos</h3>
-              <p className="text-sm text-black mt-1 text-left">
+              <h3 className="font-semibold text-black text-center md:text-left">Seguro Dispositivos</h3>
+              <p className="text-sm text-black mt-1 text-center md:text-left">
                 Seus dispositivos móveis (computador e laptop) protegidos por uma mensalidade simbólica.
               </p>
             </div>
