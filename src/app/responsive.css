@@ -1,5 +1,3 @@
-
-
 /* Header: empilhar itens em mobile */
 .custom-header {
   flex-direction: column;
@@ -17,10 +15,12 @@
   grid-template-columns: 1fr;
 }
 
-@media (max-width: 767px) {
-  .custom-header button {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.85rem;
+
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  /* Vantagens: 2 colunas em tablets */
+  .custom-vantagens .vantagens-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -28,6 +28,14 @@
 .custom-footer .footer-grid {
   grid-template-columns: 1fr;
   text-align: left;
+}
+
+/* Botões menores em mobile */
+@media (max-width: 767px) {
+  .custom-header button {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+  }
 }
 
 /* Tablet e acima */
@@ -40,14 +48,19 @@
     flex-direction: row;
     gap: 2rem;
   }
-
-  
-  .custom-vantagens .vantagens-grid {
-    grid-template-columns: repeat(4, 1fr);
-    
+  /* Alinhar ícones das vantagens à esquerda em tablet/desktop */
+  .custom-vantagens .vantagens-grid > div > .flex {
+    justify-content: flex-start;
   }
   .custom-footer .footer-grid {
     grid-template-columns: repeat(3, 1fr);
     text-align: left;
+  }
+}
+
+/* Desktop: 4 colunas para vantagens */
+@media (min-width: 1024px) {
+  .custom-vantagens .vantagens-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
