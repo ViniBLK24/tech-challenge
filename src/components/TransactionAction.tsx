@@ -28,7 +28,7 @@ type Props = {
 };
 
 export default function TransactionActions({ onSubmit }: Props) {
-  const [type, setType] = useState<TransactionTypeEnum | undefined>(undefined);
+  const [type, setType] = useState<TransactionTypeEnum | "">("");
   const [amount, setAmount] = useState("");
 
   const { toast } = useToast();
@@ -47,6 +47,7 @@ export default function TransactionActions({ onSubmit }: Props) {
     const removedSpecialCharacters = amount.replace(/\D/g, "");
 
     if (!type || !removedSpecialCharacters) {
+      console.log({ type, removedSpecialCharacters });
       toast({
         title: "Campos obrigatórios!",
         description: "Preencha todos os campos.",
@@ -67,7 +68,7 @@ export default function TransactionActions({ onSubmit }: Props) {
 
       if (response.transactions) {
         setAmount("");
-        setType(undefined);
+        setType("");
         onSubmit(response.transactions);
         toast({
           title: "Sucesso!",
@@ -113,7 +114,7 @@ export default function TransactionActions({ onSubmit }: Props) {
             className="flex flex-col gap-y-8 mt-3 md:mt-0"
           >
             <Select
-              value={type ?? undefined}
+              value={type}
               onValueChange={(value) => setType(value as TransactionTypeEnum)}
             >
               <SelectTrigger
