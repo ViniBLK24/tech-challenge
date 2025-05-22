@@ -1,4 +1,6 @@
-import { TransactionTypeEnum } from "@/types/transactions";
+import { ErrorCodeEnum } from "@/types/apiErrors";
+import { Transaction, TransactionTypeEnum } from "@/types/transactions";
+import getTotalBalance from "@/utils/getTotalBalance";
 import { promises as fileSystem } from "fs";
 import { NextRequest, NextResponse } from "next/server";
 // API route for handling transaction data
@@ -6,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Read file from system (cwd => current working directory)
 const FILE_PATH = process.cwd() + "/src/database/db.json"
 
-async function getDbFile(){
+async function getDbFile(): Promise<{transactions: Transaction[]}>{
     const file = await fileSystem.readFile(FILE_PATH, "utf-8");
     const json = JSON.parse(file);
     return json;
@@ -21,12 +23,17 @@ export async function POST(req: NextRequest){
     const result = await getDbFile();
     const newTransaction = await req.json();
 
+    const totalBalance = getTotalBalance(result.transactions);
+
     if(!newTransaction.type || !newTransaction.amount){
         // If any value is empty throw error
-        return NextResponse.json({ error: "Preencha todos os campos.", errorCode: 5000 }, {status: 400})
+        return NextResponse.json({ error: "Preencha todos os campos.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS }, {status: 400})
     } else if (!Object.values(TransactionTypeEnum).includes(newTransaction.type)){
         // If transaction type is not valid (based on the enum)
-        return NextResponse.json({ error: "Tipo de transferência inválido.", errorCode: 5001 },{status: 400})
+        return NextResponse.json({ error: "Tipo de transferência inválido.", errorCode: ErrorCodeEnum.INVALID_TRANSFER_TYPE },{status: 400})
+    } else if (newTransaction.type === TransactionTypeEnum.TRANSFER && newTransaction.amount > totalBalance){
+        // If transfer amount is bigger than total balance
+        return NextResponse.json({ error: "Saldo insuficiente.", errorCode: ErrorCodeEnum.INSUFICIENT_FUNDS_TYPE}, {status: 400});
     }
 
     // Append the new transaction to the existing list and add date created and id

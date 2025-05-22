@@ -19,31 +19,35 @@ import { useState } from "react";
 import { createTransaction } from "@/utils/api";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import { currencyFormatter } from "@/utils/currencyFormatter";
+import { ErrorCodeEnum } from "@/types/apiErrors";
+import { ERROR_CODES } from "@/constants/errors";
 
 type Props = {
   onSubmit: (data: []) => void;
 };
 
-enum ErrorCodeEnum {
-  REQUIRED_FIELDS = 5000,
-  INVALID_TRANSFER_TYPE = 5001,
-}
-// Error messages from errorCodes the API will send
-const ERROR_CODES: Record<ErrorCodeEnum, { title: string; desc: string }> = {
-  5000: { title: "Campos obrigatórios", desc: "Preencha todos os campos." },
-  5001: { title: "Tipo inválido", desc: "Tipo de transferência inválido." },
-};
-
 export default function TransactionActions({ onSubmit }: Props) {
-  const [type, setType] = useState<TransactionTypeEnum>();
+  const [type, setType] = useState<TransactionTypeEnum | "">("");
   const [amount, setAmount] = useState("");
 
   const { toast } = useToast();
 
+  /**
+   * Handles change from the amount input.
+   */
+  function handleChange(value: string): void {
+    const amount = currencyFormatter(value);
+    setAmount(amount);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!type || !amount) {
+    const removedSpecialCharacters = amount.replace(/\D/g, "");
+
+    if (!type || !removedSpecialCharacters) {
+      console.log({ type, removedSpecialCharacters });
       toast({
         title: "Campos obrigatórios!",
         description: "Preencha todos os campos.",
@@ -55,7 +59,7 @@ export default function TransactionActions({ onSubmit }: Props) {
 
     const transaction: Transaction = {
       type,
-      amount: parseFloat(amount),
+      amount: parseInt(removedSpecialCharacters),
     };
 
     try {
@@ -144,11 +148,11 @@ export default function TransactionActions({ onSubmit }: Props) {
 
               <Input
                 id="valor"
-                type="number"
+                type="text"
                 min="0"
                 step="0.01"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => handleChange(e.target.value)}
                 className="w-[50%] md:w-[100%]"
                 placeholder="00,00"
               />
