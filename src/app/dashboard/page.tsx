@@ -7,7 +7,6 @@ import WelcomeCard from "@/components/WelcomeCard";
 import TransactionActions from "@/components/TransactionAction";
 import { useEffect, useState } from "react";
 import { getTransactions } from "@/utils/api";
-import { Transaction } from "@/types/transactions";
 import getTotalBalance from "@/utils/getTotalBalance";
 
 export default function Dashboard() {
