@@ -19,6 +19,7 @@ import { useState } from "react";
 import { createTransaction } from "@/utils/api";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import { currencyFormatter } from "@/utils/currencyFormatter";
 
 type Props = {
   onSubmit: (data: []) => void;
@@ -39,6 +40,14 @@ export default function TransactionActions({ onSubmit }: Props) {
   const [amount, setAmount] = useState("");
 
   const { toast } = useToast();
+
+  /**
+   * Handles change from the amount input.
+   */
+  function handleChange(value: string): void {
+    const amount = currencyFormatter(value);
+    setAmount(amount);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,11 +153,11 @@ export default function TransactionActions({ onSubmit }: Props) {
 
               <Input
                 id="valor"
-                type="number"
+                type="text"
                 min="0"
                 step="0.01"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => handleChange(e.target.value)}
                 className="w-[50%] md:w-[100%]"
                 placeholder="00,00"
               />
