@@ -8,18 +8,10 @@ import TransactionActions from "@/components/TransactionAction";
 import { useEffect, useState } from "react";
 import { getTransactions } from "@/utils/api";
 import { Transaction } from "@/types/transactions";
+import getTotalBalance from "@/utils/getTotalBalance";
 
 export default function Dashboard() {
   const [totalBalance, setTotalBalance] = useState(0);
-
-  function getTotalBalance(data: Transaction[]): number {
-    const total = data.reduce(
-      (value, item) =>
-        item.type === "deposit" ? value + item.amount : value - item.amount,
-      0
-    );
-    return total;
-  }
 
   // Always get the total of each type and show the sum on page refresh
   useEffect(() => {
@@ -34,7 +26,6 @@ export default function Dashboard() {
   // Will always update the totalBalance when a new transaction is made in <TransactionActions>
   function handleDataFromChild(data: []) {
     setTotalBalance(getTotalBalance(data));
-    console.log(totalBalance);
   }
 
   return (

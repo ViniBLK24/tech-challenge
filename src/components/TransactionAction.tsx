@@ -20,23 +20,15 @@ import { createTransaction } from "@/utils/api";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { currencyFormatter } from "@/utils/currencyFormatter";
+import { ErrorCodeEnum } from "@/types/apiErrors";
+import { ERROR_CODES } from "@/constants/errors";
 
 type Props = {
   onSubmit: (data: []) => void;
 };
 
-enum ErrorCodeEnum {
-  REQUIRED_FIELDS = 5000,
-  INVALID_TRANSFER_TYPE = 5001,
-}
-// Error messages from errorCodes the API will send
-const ERROR_CODES: Record<ErrorCodeEnum, { title: string; desc: string }> = {
-  5000: { title: "Campos obrigatórios", desc: "Preencha todos os campos." },
-  5001: { title: "Tipo inválido", desc: "Tipo de transferência inválido." },
-};
-
 export default function TransactionActions({ onSubmit }: Props) {
-  const [type, setType] = useState<TransactionTypeEnum>();
+  const [type, setType] = useState<TransactionTypeEnum | undefined>(undefined);
   const [amount, setAmount] = useState("");
 
   const { toast } = useToast();
@@ -52,7 +44,9 @@ export default function TransactionActions({ onSubmit }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!type || !amount) {
+    const removedSpecialCharacters = amount.replace(/\D/g, "");
+
+    if (!type || !removedSpecialCharacters) {
       toast({
         title: "Campos obrigatórios!",
         description: "Preencha todos os campos.",
@@ -64,7 +58,7 @@ export default function TransactionActions({ onSubmit }: Props) {
 
     const transaction: Transaction = {
       type,
-      amount: parseFloat(amount),
+      amount: parseInt(removedSpecialCharacters),
     };
 
     try {
@@ -73,7 +67,7 @@ export default function TransactionActions({ onSubmit }: Props) {
 
       if (response.transactions) {
         setAmount("");
-        setType("");
+        setType(undefined);
         onSubmit(response.transactions);
         toast({
           title: "Sucesso!",
@@ -119,7 +113,7 @@ export default function TransactionActions({ onSubmit }: Props) {
             className="flex flex-col gap-y-8 mt-3 md:mt-0"
           >
             <Select
-              value={type}
+              value={type ?? undefined}
               onValueChange={(value) => setType(value as TransactionTypeEnum)}
             >
               <SelectTrigger

@@ -11,6 +11,7 @@ import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import BackgroundShapes from "@/components/ui/BackgroundShapes";
 import { useState } from "react";
+import { currencyFormatter } from "@/utils/currencyFormatter";
 
 const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
@@ -63,7 +64,10 @@ export default function WelcomeCard({ balance }: { balance: number }) {
         <div>
           <p className="text-white text-md">Conta Corrente</p>
           <p className="text-white font-semibold text-2xl">
-            R$ {isBalanceHidden ? "••••••" : balance}
+            R${" "}
+            {isBalanceHidden
+              ? "••••••"
+              : currencyFormatter((balance / 100).toFixed(2))}
           </p>
         </div>
       </CardContent>
