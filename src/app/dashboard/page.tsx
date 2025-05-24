@@ -8,6 +8,7 @@ import TransactionActions from "@/components/TransactionAction";
 import { useEffect, useState } from "react";
 import { getTransactions } from "@/utils/api";
 import getTotalBalance from "@/utils/getTotalBalance";
+import BankStatement from "@/components/BankStatement";
 
 export default function Dashboard() {
   const [totalBalance, setTotalBalance] = useState(0);
@@ -40,7 +41,7 @@ export default function Dashboard() {
             <WelcomeCard balance={totalBalance} />
             <TransactionActions onSubmit={handleDataFromChild} />
           </div>
-          <div className="h-[100%] bg-secondary col-span-2">Transações</div>
+          <BankStatement />
         </div>
       </div>
     </div>
