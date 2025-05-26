@@ -57,9 +57,12 @@ export default function TransactionActions({ onSubmit }: Props) {
       return;
     }
 
+    const createdAt = new Date().toISOString();
+
     const transaction: Transaction = {
       type,
       amount: parseInt(removedSpecialCharacters),
+      createdAt,
     };
 
     try {

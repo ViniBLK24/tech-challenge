@@ -4,6 +4,8 @@ export enum TransactionTypeEnum {
 }
 
 export interface Transaction {
-      type: TransactionTypeEnum,
-      amount: number,
-    };
+  type: TransactionTypeEnum;
+  amount: number;
+  createdAt: string;
+  id?: string;
+}
