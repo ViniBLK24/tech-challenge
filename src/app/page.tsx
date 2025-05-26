@@ -78,8 +78,12 @@ export default function Home() {
         </div>
         {/* Menu desktop */}
         <nav className="hidden md:flex gap-6">
-          <a href="#" className="text-pattern-green hover:text-white">Sobre</a>
-          <a href="#" className="text-pattern-green hover:text-white">Serviços</a>
+          <a href="#" className="text-pattern-green hover:text-white">
+            Sobre
+          </a>
+          <a href="#" className="text-pattern-green hover:text-white">
+            Serviços
+          </a>
         </nav>
         {/* Botões só em tablet/desktop */}
         <div className="hidden md:flex gap-2 md:gap-4">
@@ -103,7 +107,8 @@ export default function Home() {
         <div className="w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 px-4">
           <div className="flex-1 flex items-start w-full">
             <h1 className="text-xl md:text-2xl font-bold text-black mb-4 text-left w-full">
-              Experimente mais liberdade no controle da sua vida financeira.<br />
+              Experimente mais liberdade no controle da sua vida financeira.
+              <br />
               Crie sua conta com a gente!
             </h1>
           </div>
@@ -133,16 +138,14 @@ export default function Home() {
           >
             <div>
               <div className="flex justify-center md:justify-start mb-2">
-                <Image
-                  src="/gift.svg"
-                  alt="gift icon"
-                  width={48}
-                  height={48}
-                />
+                <Image src="/gift.svg" alt="gift icon" width={48} height={48} />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Conta e cartão gratuitos</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Conta e cartão gratuitos
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
-                Isso mesmo, nossa conta é digital, sem custo fixo e mais: uso grátis, sem tarifa de manutenção.
+                Isso mesmo, nossa conta é digital, sem custo fixo e mais: uso
+                grátis, sem tarifa de manutenção.
               </p>
             </div>
             <div>
@@ -154,23 +157,23 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Saques sem custo</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Saques sem custo
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
                 Você pode sacar gratuitamente 4x por mês de qualquer Banco 24h.
               </p>
             </div>
             <div>
               <div className="flex justify-center md:justify-start mb-2">
-                <Image
-                  src="/star.svg"
-                  alt="star icon"
-                  width={48}
-                  height={48}
-                />
+                <Image src="/star.svg" alt="star icon" width={48} height={48} />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Programa de pontos</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Programa de pontos
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
-                Você pode acumular pontos com suas compras no crédito sem pagar mensalidade!
+                Você pode acumular pontos com suas compras no crédito sem pagar
+                mensalidade!
               </p>
             </div>
             <div>
@@ -182,9 +185,12 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Seguro Dispositivos</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Seguro Dispositivos
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
-                Seus dispositivos móveis (computador e laptop) protegidos por uma mensalidade simbólica.
+                Seus dispositivos móveis (computador e laptop) protegidos por
+                uma mensalidade simbólica.
               </p>
             </div>
           </div>
@@ -216,17 +222,38 @@ export default function Home() {
           <div className="flex flex-col items-start md:items-center mt-8 md:mt-0">
             <span className="font-bold mb-2">Desenvolvido por Alura</span>
             <div className="flex items-center mb-2">
-              <Image src="/logo-white.svg" alt="Bytebank" width={100} height={28} />
+              <Image
+                src="/logo-white.svg"
+                alt="Bytebank"
+                width={100}
+                height={28}
+              />
             </div>
             <div className="flex gap-4 mt-2">
               <a href="#" aria-label="Instagram">
-                <Image src="/instagram.svg" alt="instagram" width={24} height={24} />
+                <Image
+                  src="/instagram.svg"
+                  alt="instagram"
+                  width={24}
+                  height={24}
+                />
               </a>
               <a href="#" aria-label="WhatsApp">
-                <Image src="/whatsapp.svg" alt="whatsApp" width={24} height={24} />
+                <Image
+                  src="/whatsapp.svg"
+                  alt="whatsApp"
+                  width={24}
+                  height={24}
+                />
               </a>
               <a href="#" aria-label="YouTube">
-                <Image src="/youtube.svg" alt="youTube" width={24} height={24} className="py-1" />
+                <Image
+                  src="/youtube.svg"
+                  alt="youTube"
+                  width={24}
+                  height={24}
+                  className="py-1"
+                />
               </a>
             </div>
           </div>

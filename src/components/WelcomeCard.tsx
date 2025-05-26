@@ -40,7 +40,7 @@ export default function WelcomeCard({ balance }: { balance: number }) {
     <Card className="bg-black relative py-6 px-5 gap-y-8 md:grid md:grid-cols-2">
       <BackgroundShapes y="top-0" x="right-0" />
       <BackgroundShapes y="bottom-0" x="left-0" />
-      <CardHeader className="flex flex-col items-center md:items-start md:gap-y-10">
+      <CardHeader className="flex flex-col md:items-start md:gap-y-10">
         <div>
           <CardTitle className="text-white text-3xl">Olá, Joana! :)</CardTitle>
           <CardDescription className="text-md md:mt-2">
