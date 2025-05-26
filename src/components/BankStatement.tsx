@@ -11,7 +11,7 @@ export default function BankStatement() {
 
   useEffect(() => {
     getTransactions().then((res) => {
-      setTransactions(res.transactions);
+      setTransactions(res.transactions.slice(0, 8));
     });
   }, []);
 
@@ -54,6 +54,9 @@ export default function BankStatement() {
           </div>
         </>
       ))}
+      <div className="mt-4 text-right">
+        <a href="/transactions" className="text-blue-500 hover:underline">Ver extrato completo</a>
+      </div>
     </div>
   );
 }
