@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const router = useRouter();
@@ -216,31 +218,7 @@ export default function Home() {
       )}
 
       {/* Header */}
-      <header className="flex flex-col md:flex-row items-center justify-between px-4 md:px-8 py-4 bg-black gap-4 md:gap-0">
-        <div className="flex items-center">
-          <Image src="/logo-green.svg" alt="Bytebank" width={120} height={32} />
-        </div>
-        {/* Menu desktop */}
-        <nav className="hidden md:flex gap-6">
-          <a href="#" className="text-pattern-green hover:text-white">Sobre</a>
-          <a href="#" className="text-pattern-green hover:text-white">Serviços</a>
-        </nav>
-        {/* Botões só em tablet/desktop */}
-        <div className="hidden md:flex gap-2 md:gap-4">
-          <button
-            className="border border-pattern-green text-pattern-green px-3 py-2 md:px-4 md:py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm md:text-base"
-            onClick={() => handleOpenModal("abrir")}
-          >
-            Abrir minha conta
-          </button>
-          <button
-            className="border border-pattern-green text-pattern-green px-3 py-2 md:px-4 md:py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm md:text-base"
-            onClick={() => handleOpenModal("login")}
-          >
-            Já tenho conta
-          </button>
-        </div>
-      </header>
+      <Header onOpenModal={handleOpenModal} />
 
       {/* Main */}
       <main className="flex flex-col items-center justify-center py-10 md:py-16 bg-gradient-to-b from-[#EBE8ED] to-[#FFFFFF] min-h-[60vh] w-full">
@@ -336,46 +314,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-black py-10 px-4">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-white">
-          {/* Serviços */}
-          <div>
-            <h4 className="font-bold mb-2">Serviços</h4>
-            <ul className="space-y-1 text-sm">
-              <li>Conta corrente</li>
-              <li>Conta PJ</li>
-              <li>Cartão de crédito</li>
-            </ul>
-          </div>
-          {/* Contato */}
-          <div>
-            <h4 className="font-bold mb-2">Contato</h4>
-            <ul className="space-y-1 text-sm">
-              <li>0800 004 250 08</li>
-              <li>meajuda@bytebank.com.br</li>
-              <li>ouvidoria@bytebank.com.br</li>
-            </ul>
-          </div>
-          {/* Desenvolvido por */}
-          <div className="flex flex-col items-start md:items-center mt-8 md:mt-0">
-            <span className="font-bold mb-2">Desenvolvido por Alura</span>
-            <div className="flex items-center mb-2">
-              <Image src="/logo-white.svg" alt="Bytebank" width={100} height={28} />
-            </div>
-            <div className="flex gap-4 mt-2">
-              <a href="#" aria-label="Instagram">
-                <Image src="/instagram.svg" alt="instagram" width={24} height={24} />
-              </a>
-              <a href="#" aria-label="WhatsApp">
-                <Image src="/whatsapp.svg" alt="whatsApp" width={24} height={24} />
-              </a>
-              <a href="#" aria-label="YouTube">
-                <Image src="/youtube.svg" alt="youTube" width={24} height={24} className="py-1" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
