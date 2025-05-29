@@ -10,8 +10,9 @@ import {
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import BackgroundShapes from "@/components/ui/BackgroundShapes";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { currencyFormatter } from "@/utils/currencyFormatter";
+import getCurrentUser from "@/utils/getCurrentUser";
 
 const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
@@ -31,6 +32,11 @@ const formatCurrentDate = () => {
 
 export default function WelcomeCard({ balance }: { balance: number }) {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    setUserName(getCurrentUser());
+  }, []);
 
   function onEyeClick() {
     setIsBalanceHidden((prev) => !prev);
@@ -42,7 +48,9 @@ export default function WelcomeCard({ balance }: { balance: number }) {
       <BackgroundShapes y="bottom-0" x="left-0" />
       <CardHeader className="flex flex-col items-center md:items-start md:gap-y-10">
         <div>
-          <CardTitle className="text-white text-3xl">Olá, Joana! :)</CardTitle>
+          <CardTitle className="text-white text-3xl">
+            Olá, {userName}! :)
+          </CardTitle>
           <CardDescription className="text-md md:mt-2">
             {formatCurrentDate()}
           </CardDescription>
