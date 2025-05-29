@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import removeCurrentUser from "@/utils/removeCurrentUser";
+import setCurrentUser from "@/utils/setCurrentUser";
 
 export default function Home() {
   const router = useRouter();
@@ -52,6 +54,7 @@ export default function Home() {
     // Salva novo usuário
     users.push({ nome, email, senha });
     localStorage.setItem("users", JSON.stringify(users));
+    setCurrentUser(users[users.length - 1]);
     handleCloseModal();
     router.push("/dashboard");
   };
@@ -70,6 +73,8 @@ export default function Home() {
 
     if (user) {
       handleCloseModal();
+      // Salva usuário sendo logado
+      setCurrentUser(user);
       router.push("/dashboard");
     } else {
       setLoginError("E-mail ou senha inválidos.");
@@ -86,7 +91,7 @@ export default function Home() {
         >
           <div
             className="bg-white rounded-lg p-8 max-w-sm w-full relative"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               className="absolute top-2 right-3 text-2xl text-gray-500 hover:text-black"
@@ -225,7 +230,8 @@ export default function Home() {
         <div className="w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 px-4">
           <div className="flex-1 flex items-start w-full">
             <h1 className="text-xl md:text-2xl font-bold text-black mb-4 text-left w-full">
-              Experimente mais liberdade no controle da sua vida financeira.<br />
+              Experimente mais liberdade no controle da sua vida financeira.
+              <br />
               Crie sua conta com a gente!
             </h1>
           </div>
@@ -255,16 +261,14 @@ export default function Home() {
           >
             <div>
               <div className="flex justify-center md:justify-start mb-2">
-                <Image
-                  src="/gift.svg"
-                  alt="gift icon"
-                  width={48}
-                  height={48}
-                />
+                <Image src="/gift.svg" alt="gift icon" width={48} height={48} />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Conta e cartão gratuitos</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Conta e cartão gratuitos
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
-                Isso mesmo, nossa conta é digital, sem custo fixo e mais: uso grátis, sem tarifa de manutenção.
+                Isso mesmo, nossa conta é digital, sem custo fixo e mais: uso
+                grátis, sem tarifa de manutenção.
               </p>
             </div>
             <div>
@@ -276,23 +280,23 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Saques sem custo</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Saques sem custo
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
                 Você pode sacar gratuitamente 4x por mês de qualquer Banco 24h.
               </p>
             </div>
             <div>
               <div className="flex justify-center md:justify-start mb-2">
-                <Image
-                  src="/star.svg"
-                  alt="star icon"
-                  width={48}
-                  height={48}
-                />
+                <Image src="/star.svg" alt="star icon" width={48} height={48} />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Programa de pontos</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Programa de pontos
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
-                Você pode acumular pontos com suas compras no crédito sem pagar mensalidade!
+                Você pode acumular pontos com suas compras no crédito sem pagar
+                mensalidade!
               </p>
             </div>
             <div>
@@ -304,9 +308,12 @@ export default function Home() {
                   height={48}
                 />
               </div>
-              <h3 className="font-semibold text-black text-center md:text-left">Seguro Dispositivos</h3>
+              <h3 className="font-semibold text-black text-center md:text-left">
+                Seguro Dispositivos
+              </h3>
               <p className="text-sm text-black mt-1 text-center md:text-left">
-                Seus dispositivos móveis (computador e laptop) protegidos por uma mensalidade simbólica.
+                Seus dispositivos móveis (computador e laptop) protegidos por
+                uma mensalidade simbólica.
               </p>
             </div>
           </div>

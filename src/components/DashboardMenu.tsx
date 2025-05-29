@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Menubar,
   MenubarContent,
@@ -10,8 +12,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 import { Menu, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import getCurrentUser from "@/utils/getCurrentUser";
 
 export default function DashboardMenu() {
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    setUserName(getCurrentUser());
+  }, []);
+
   return (
     <Menubar className="rounded-none bg-black border-black py-8 px-4 w-[100%] flex justify-between md:justify-center md:px-8">
       {/* Mobile hamburguer menu */}
@@ -53,7 +63,7 @@ export default function DashboardMenu() {
           </Link>
         </div>
         <div className="flex gap-6 items-center">
-          <p className="text-white">Joana da Silva Oliveira</p>
+          <p className="text-white">{userName}</p>
           <Avatar className="border-[2.5px] border-primary">
             <AvatarImage src="" alt="User photo" />
             <AvatarFallback className="bg-transparent">
