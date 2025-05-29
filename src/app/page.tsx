@@ -7,9 +7,159 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"abrir" | "login" | null>(null);
+  const [loginError, setLoginError] = useState("");
+  const [registerError, setRegisterError] = useState("");
+
+  // Abrir modal
+  const handleOpenModal = (type: "abrir" | "login") => {
+    setModalType(type);
+    setModalOpen(true);
+    setSidebarOpen(false);
+    setLoginError("");
+    setRegisterError("");
+  };
+
+  // Fechar modal
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setModalType(null);
+    setLoginError("");
+    setRegisterError("");
+  };
+
+  // Cadastro de usuário (vários usuários)
+  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const nome = (form.elements.namedItem("nome") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const senha = (form.elements.namedItem("senha") as HTMLInputElement).value;
+
+    // Busca usuários existentes
+    const usersRaw = localStorage.getItem("users");
+    const users = usersRaw ? JSON.parse(usersRaw) : [];
+
+    // Verifica se já existe usuário com esse email
+    if (users.some((u: any) => u.email === email)) {
+      setRegisterError("E-mail já cadastrado.");
+      return;
+    }
+
+    // Salva novo usuário
+    users.push({ nome, email, senha });
+    localStorage.setItem("users", JSON.stringify(users));
+    handleCloseModal();
+    router.push("/dashboard");
+  };
+
+  // Login de usuário
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const senha = (form.elements.namedItem("senha") as HTMLInputElement).value;
+
+    const usersRaw = localStorage.getItem("users");
+    const users = usersRaw ? JSON.parse(usersRaw) : [];
+
+    const user = users.find((u: any) => u.email === email && u.senha === senha);
+
+    if (user) {
+      handleCloseModal();
+      router.push("/dashboard");
+    } else {
+      setLoginError("E-mail ou senha inválidos.");
+    }
+  };
 
   return (
     <>
+      {/* Modal */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="bg-white rounded-lg p-8 max-w-sm w-full relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-3 text-2xl text-gray-500 hover:text-black"
+              onClick={handleCloseModal}
+              aria-label="Fechar modal"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-4 text-black">
+              {modalType === "abrir" ? "Abrir minha conta" : "Já tenho conta"}
+            </h2>
+            {modalType === "abrir" ? (
+              <form className="flex flex-col gap-4" onSubmit={handleRegister}>
+                <input
+                  name="nome"
+                  type="text"
+                  placeholder="Primeiro nome"
+                  className="border rounded px-3 py-2 text-black"
+                  required
+                />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="E-mail"
+                  className="border rounded px-3 py-2 text-black"
+                  required
+                />
+                <input
+                  name="senha"
+                  type="password"
+                  placeholder="Senha"
+                  className="border rounded px-3 py-2 text-black"
+                  required
+                />
+                {registerError && (
+                  <span className="text-red-500 text-sm">{registerError}</span>
+                )}
+                <button
+                  type="submit"
+                  className="border border-pattern-green bg-black text-pattern-green font-semibold rounded px-4 py-2 mt-2 hover:bg-pattern-green hover:text-black transition"
+                >
+                  Criar conta
+                </button>
+              </form>
+            ) : (
+              <form className="flex flex-col gap-4" onSubmit={handleLogin}>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="E-mail"
+                  className="border rounded px-3 py-2 text-black"
+                  required
+                />
+                <input
+                  name="senha"
+                  type="password"
+                  placeholder="Senha"
+                  className="border rounded px-3 py-2 text-black"
+                  required
+                />
+                {loginError && (
+                  <span className="text-red-500 text-sm">{loginError}</span>
+                )}
+                <button
+                  type="submit"
+                  className="border border-pattern-green bg-black text-pattern-green font-semibold rounded px-4 py-2 mt-2 hover:bg-pattern-green hover:text-black transition"
+                >
+                  Entrar
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Botão de menu só no mobile */}
       <button
         className="md:hidden fixed top-4 left-4 z-50 bg-black text-pattern-green p-2 rounded cursor-pointer"
@@ -48,19 +198,13 @@ export default function Home() {
             <div className="flex flex-col gap-2 mt-4 md:hidden">
               <button
                 className="border border-pattern-green text-pattern-green px-3 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm"
-                onClick={() => {
-                  setSidebarOpen(false);
-                  router.push("/dashboard");
-                }}
+                onClick={() => handleOpenModal("abrir")}
               >
                 Abrir minha conta
               </button>
               <button
                 className="border border-pattern-green text-pattern-green px-3 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm"
-                onClick={() => {
-                  setSidebarOpen(false);
-                  router.push("/dashboard");
-                }}
+                onClick={() => handleOpenModal("login")}
               >
                 Já tenho conta
               </button>
@@ -85,13 +229,13 @@ export default function Home() {
         <div className="hidden md:flex gap-2 md:gap-4">
           <button
             className="border border-pattern-green text-pattern-green px-3 py-2 md:px-4 md:py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm md:text-base"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => handleOpenModal("abrir")}
           >
             Abrir minha conta
           </button>
           <button
             className="border border-pattern-green text-pattern-green px-3 py-2 md:px-4 md:py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm md:text-base"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => handleOpenModal("login")}
           >
             Já tenho conta
           </button>
