@@ -35,7 +35,8 @@ export default function WelcomeCard({ balance }: { balance: number }) {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    setUserName(getCurrentUser());
+    const currUser = getCurrentUser();
+    setUserName(currUser.split(" ")[0]);
   }, []);
 
   function onEyeClick() {
