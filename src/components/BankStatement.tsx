@@ -4,16 +4,31 @@ import { useEffect, useState } from "react";
 import { Transaction, TransactionTypeEnum } from "@/types/transactions";
 import MoneyItem from "./ui/MoneyItem";
 import ActionButton from "./ui/ActionButton";
+import Link from "next/link";
+import { Loader2Icon } from "lucide-react";
 
 export default function BankStatement(props: {
   handleAction?: (transaction: Transaction, isEditing: boolean) => void;
   transactions: Transaction[];
 }) {
   const [transactionsData, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    if (props.transactions) {
-      setTransactions(props.transactions.slice(0, 8));
+    async function fetchData() {
+      try {
+        if (props.transactions) {
+          setIsLoading(true);
+          setTransactions(props.transactions.slice(0, 8));
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    fetchData();
   }, [props.transactions]);
 
   const formatDate = (date: string) => {
@@ -29,6 +44,14 @@ export default function BankStatement(props: {
     <Card className="hidden lg:block h-[100%]">
       <CardContent className="p-2 py-8 flex flex-col">
         <CardTitle className="text-2xl text-[25px] mb-8">Extrato</CardTitle>
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center h-full p-4">
+            <p className="text-muted-foreground p-4">
+              <Loader2Icon className="animate-spin" />
+            </p>
+            <p className="text-muted-foreground">Carregando...</p>
+          </div>
+        )}
         {transactionsData?.map((transaction) => (
           <div className="flex row justify-between " key={transaction.id}>
             <div className="flex flex-col flex-1">
@@ -59,11 +82,11 @@ export default function BankStatement(props: {
             </div>
           </div>
         ))}
-        <div className="mt-4 text-right">
-          <a href="/transactions" className="text-blue-500 hover:underline">
-            Ver extrato completo
-          </a>
-        </div>
+        {!isLoading && transactionsData.length > 0 && (
+          <div className="mt-8 text-center">
+            <Link href="/transactions"> Ver extrato completo</Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
