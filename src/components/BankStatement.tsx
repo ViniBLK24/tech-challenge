@@ -41,7 +41,7 @@ export default function BankStatement(props: {
   };
 
   return (
-    <Card className="hidden lg:block h-[100%]">
+    <Card className="hidden sm:block lg:block h-[100%]">
       <CardContent className="p-2 py-8 flex flex-col">
         <CardTitle className="text-2xl text-[25px] mb-8">Extrato</CardTitle>
         {isLoading && (
