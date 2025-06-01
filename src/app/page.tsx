@@ -82,7 +82,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       {/* Modal */}
       {modalOpen && (
         <div
@@ -226,7 +226,7 @@ export default function Home() {
       <Header onOpenModal={handleOpenModal} />
 
       {/* Main */}
-      <main className="flex flex-col items-center justify-center py-10 md:py-16 bg-gradient-to-b from-[#EBE8ED] to-[#FFFFFF] min-h-[60vh] w-full">
+      <main className="flex-1 flex flex-col items-center justify-center py-10 md:py-16 bg-gradient-to-b from-[#EBE8ED] to-[#FFFFFF] w-full">
         <div className="w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 px-4">
           <div className="flex-1 flex items-start w-full">
             <h1 className="text-xl md:text-2xl font-bold text-black mb-4 text-left w-full">
@@ -322,6 +322,6 @@ export default function Home() {
 
       {/* Footer */}
       <Footer />
-    </>
+    </div>
   );
 }
