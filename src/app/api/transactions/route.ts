@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
   await fileSystem.writeFile(FILE_PATH, JSON.stringify(updatedTransactions));
   return NextResponse.json(updatedTransactions, { status: 200 });
 }
+
 export async function PUT(req: NextRequest) {
   const result = await getDbFile();
   const updatedTransaction = await req.json();
@@ -160,7 +161,7 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json(
     {
       message: "Transação atualizada com sucesso",
-      transaction: result.transactions[transactionIndex],
+      transactions: (result.transactions = result.transactions),
     },
     { status: 200 }
   );
@@ -200,10 +201,6 @@ export async function DELETE(req: NextRequest) {
       { status: 404 }
     );
   }
-
-  // Armazenar transação removida para retorno
-  const deletedTransaction = result.transactions[transactionIndex];
-
   // Remover transação do array
   result.transactions.splice(transactionIndex, 1);
 
@@ -213,8 +210,7 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json(
     {
       message: "Transação removida com sucesso",
-      transaction: deletedTransaction,
-      remainingTransactions: result.transactions.length,
+      transactions: result.transactions,
     },
     { status: 200 }
   );

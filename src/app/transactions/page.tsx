@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getTransactions } from "@/utils/api";
-import { Transaction, TransactionTypeEnum } from "@/types/transactions";
+import { Transaction } from "@/types/transactions";
 import DashboardMenu from "@/components/DashboardMenu";
 import PageHeader from "@/components/transactions/PageHeader";
 import SearchFilter from "@/components/transactions/SearchFilter";
@@ -11,7 +11,9 @@ import Pagination from "@/components/transactions/Pagination";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -29,9 +31,7 @@ export default function TransactionsPage() {
 
     // Apply type filter
     if (typeFilter !== "all") {
-      result = result.filter(
-        (transaction) => transaction.type === typeFilter
-      );
+      result = result.filter((transaction) => transaction.type === typeFilter);
     }
 
     // Apply search filter (search by amount)
@@ -70,29 +70,29 @@ export default function TransactionsPage() {
       <DashboardMenu />
       <div className="flex justify-center w-[100%]">
         <div className="flex flex-col gap-4 p-6 md:p-12 w-[100%] max-w-[1200px]">
-          <PageHeader 
-            title="Extrato Completo" 
-            backHref="/dashboard" 
-            backLabel="Voltar" 
+          <PageHeader
+            title="Extrato Completo"
+            backHref="/dashboard"
+            backLabel="Voltar"
           />
 
-          <SearchFilter 
+          <SearchFilter
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             typeFilter={typeFilter}
             setTypeFilter={setTypeFilter}
           />
 
-          <TransactionsTable 
-            transactions={paginatedTransactions} 
-            formatDate={formatDate} 
+          <TransactionsTable
+            transactions={paginatedTransactions}
+            formatDate={formatDate}
           />
 
           {totalPages > 0 && (
-            <Pagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              setCurrentPage={setCurrentPage} 
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
             />
           )}
         </div>

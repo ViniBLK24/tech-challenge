@@ -1,25 +1,22 @@
 import { TransactionTypeEnum } from "@/types/transactions";
+import { currencyFormatter } from "@/utils/currencyFormatter";
 
 export default function MoneyItem({
   value,
   type,
 }: {
-  value: number;
+  value: string;
   type: TransactionTypeEnum;
 }) {
-  const formatValue = (value: number) => {
+  const formatValue = (value: string) => {
     if (type === TransactionTypeEnum.TRANSFER) {
       return `-R$ ${convertToReal(value)}`;
     }
     return `R$ ${convertToReal(value)}`;
   };
 
-  const convertToReal = (value: number) => {
-    const realValue = Intl.NumberFormat("pt-BR", {
-      currency: "BRL",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
+  const convertToReal = (value: string) => {
+    const realValue = currencyFormatter(value);
     return realValue;
   };
   return (

@@ -15,64 +15,80 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import BackgroundShapes from "./ui/BackgroundShapes";
 import { TransactionTypeEnum, Transaction } from "@/types/transactions";
-import { useState } from "react";
-import { createTransaction } from "@/utils/api";
+import { useEffect, useState } from "react";
+import {
+  createTransaction,
+  deleteTransaction,
+  editTransaction,
+} from "@/utils/api";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { currencyFormatter } from "@/utils/currencyFormatter";
+// import { currencyFormatter } from "@/utils/currencyFormatter";
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { ERROR_CODES } from "@/constants/errors";
+import { currencyFormatter } from "@/utils/currencyFormatter";
 
 type Props = {
-  onSubmit: (data: []) => void;
+  transaction?: Transaction | null;
+  isEditing?: boolean;
+  onComplete: (isEditing: boolean) => void;
+  transactions?: Transaction[];
 };
 
-export default function TransactionActions({ onSubmit }: Props) {
-  const [type, setType] = useState<TransactionTypeEnum | "">("");
-  const [amount, setAmount] = useState("");
-
+export default function TransactionActions({
+  transaction = null,
+  isEditing = false,
+  onComplete,
+}: Props) {
   const { toast } = useToast();
 
-  /**
-   * Handles change from the amount input.
-   */
-  function handleChange(value: string): void {
-    const amount = currencyFormatter(value);
-    setAmount(amount);
+  const [formData, setFormData] = useState<{
+    id?: number;
+    type: string;
+    amount: string;
+  }>({
+    id: undefined,
+    type: "",
+    amount: "",
+  });
+
+  const [isEditingState, setIsEditingState] = useState(isEditing);
+
+  useEffect(() => {
+    if (transaction && isEditing) {
+      setFormData({
+        id: transaction.id ?? 0,
+        type: transaction.type || "",
+        amount: transaction.amount ? String(transaction.amount) : "",
+      });
+      setIsEditingState(true);
+    } else if (transaction && !isEditing) {
+      handleDeleteTransaction(transaction);
+    }
+  }, [transaction]);
+
+  function handleChange(field: string, value: string): void {
+    if (field === "amount") {
+      const amount = currencyFormatter(value + "");
+      value = amount;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const removedSpecialCharacters = amount.replace(/\D/g, "");
-
-    if (!type || !removedSpecialCharacters) {
-      console.log({ type, removedSpecialCharacters });
-      toast({
-        title: "Campos obrigatórios!",
-        description: "Preencha todos os campos.",
-        variant: "warning",
-        duration: 4000,
-      });
-      return;
-    }
-
-    const createdAt = new Date().toISOString();
-
-    const transaction: Transaction = {
-      type,
-      amount: parseInt(removedSpecialCharacters),
-      createdAt,
-    };
-
+  async function handleDeleteTransaction(transaction: Transaction) {
     try {
-      const response = await createTransaction(transaction);
-      console.log(response);
+      const response = await deleteTransaction(transaction);
 
       if (response.transactions) {
-        setAmount("");
-        setType("");
-        onSubmit(response.transactions);
+        setFormData({
+          type: "",
+          amount: "",
+        });
+        setIsEditingState(false);
+        onComplete(isEditingState);
         toast({
           title: "Sucesso!",
           description: "Transação concluída.",
@@ -97,8 +113,116 @@ export default function TransactionActions({ onSubmit }: Props) {
         duration: 4000,
       });
     }
-  };
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
+    const removedSpecialCharacters = formData.amount.replace(/\D/g, "");
+
+    if (!formData.type || !removedSpecialCharacters) {
+      toast({
+        title: "Campos obrigatórios!",
+        description: "Preencha todos os campos.",
+        variant: "warning",
+        duration: 4000,
+      });
+      return;
+    }
+
+    const createdAt =
+      isEditingState && transaction
+        ? transaction.createdAt
+        : new Date().toISOString();
+
+    const transactionData: Transaction = {
+      type: formData.type as TransactionTypeEnum,
+      amount: parseInt(removedSpecialCharacters),
+      createdAt,
+      id: formData.id,
+    };
+
+    if (!isEditingState) {
+      handleCreateTransaction(transactionData);
+    } else {
+      handleEditTransaction(transactionData);
+    }
+
+    async function handleCreateTransaction(transactionData: Transaction) {
+      try {
+        const response = await createTransaction(transactionData);
+
+        if (response.transactions) {
+          setFormData({
+            type: "",
+            amount: "",
+          });
+          setIsEditingState(false);
+
+          onComplete(isEditingState);
+          toast({
+            title: "Sucesso!",
+            description: "Transação concluída.",
+            variant: "success",
+            duration: 4000,
+          });
+        } else {
+          const code = response.errorCode as ErrorCodeEnum;
+          toast({
+            title: ERROR_CODES[code].title,
+            description: ERROR_CODES[code].desc,
+            variant: "warning",
+            duration: 4000,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+        toast({
+          title: "Algo deu errado.",
+          description: "Falha na operação.",
+          variant: "destructive",
+          duration: 4000,
+        });
+      }
+    }
+
+    async function handleEditTransaction(transactionData: Transaction) {
+      try {
+        const response = await editTransaction(transactionData);
+
+        if (response.transactions) {
+          setFormData({
+            type: "",
+            amount: "",
+          });
+
+          onComplete(false);
+          setIsEditingState(false);
+          toast({
+            title: "Sucesso!",
+            description: "Transação concluída.",
+            variant: "success",
+            duration: 4000,
+          });
+        } else {
+          const code = response.errorCode as ErrorCodeEnum;
+          toast({
+            title: ERROR_CODES[code].title,
+            description: ERROR_CODES[code].desc,
+            variant: "warning",
+            duration: 4000,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+        toast({
+          title: "Algo deu errado.",
+          description: "Falha na operação.",
+          variant: "destructive",
+          duration: 4000,
+        });
+      }
+    }
+  };
   return (
     <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:h-[490px]">
       <BackgroundShapes y="top-0" x="right-0" />
@@ -107,7 +231,10 @@ export default function TransactionActions({ onSubmit }: Props) {
 
       <div className="flex flex-col md:w-[60%] md:px-5 md:gap-4 lg:w-[55%]">
         <CardHeader className="flex flex-col items-center md:items-start">
-          <CardTitle className="text-3xl">Nova transação</CardTitle>
+          <CardTitle className="text-3xl">
+            {" "}
+            {isEditingState ? "Alterar Transação" : "Nova Transação"}
+          </CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -117,11 +244,11 @@ export default function TransactionActions({ onSubmit }: Props) {
             className="flex flex-col gap-y-8 mt-3 md:mt-0"
           >
             <Select
-              value={type}
-              onValueChange={(value) => setType(value as TransactionTypeEnum)}
+              value={formData.type}
+              onValueChange={(value) => handleChange("type", value)}
             >
               <SelectTrigger
-                value={type}
+                value={formData.type}
                 className="w-[100%] z-1 cursor-pointer"
               >
                 <SelectValue placeholder="Selecione o tipo de transação" />
@@ -154,8 +281,8 @@ export default function TransactionActions({ onSubmit }: Props) {
                 type="text"
                 min="0"
                 step="0.01"
-                value={amount}
-                onChange={(e) => handleChange(e.target.value)}
+                value={currencyFormatter(formData.amount)}
+                onChange={(e) => handleChange("amount", e.target.value)}
                 className="w-[50%] md:w-[100%]"
                 placeholder="00,00"
               />
@@ -169,7 +296,7 @@ export default function TransactionActions({ onSubmit }: Props) {
                 "bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
               )}
             >
-              Concluir transação
+              {isEditingState ? "Salvar alterações" : "Concluir transação"}
             </Button>
 
             <Toaster />

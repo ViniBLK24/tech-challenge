@@ -9,14 +9,18 @@ import { useEffect, useState } from "react";
 import { getTransactions } from "@/utils/api";
 import getTotalBalance from "@/utils/getTotalBalance";
 import BankStatement from "@/components/BankStatement";
+import { Transaction } from "@/types/transactions";
 
 export default function Dashboard() {
   const [totalBalance, setTotalBalance] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [transaction, setTransaction] = useState(null as Transaction | null);
+  const [transactions, setTransactions] = useState([] as Transaction[]);
 
-  // Always get the total of each type and show the sum on page refresh
   useEffect(() => {
     async function getTotalAmountOnLoad() {
       const data = await getTransactions();
+      setTransactions(data.transactions);
       setTotalBalance(getTotalBalance(data.transactions));
     }
 
@@ -24,8 +28,15 @@ export default function Dashboard() {
   }, []);
 
   // Will always update the totalBalance when a new transaction is made in <TransactionActions>
-  function handleDataFromChild(data: []) {
-    setTotalBalance(getTotalBalance(data));
+  async function handleDataFromChild() {
+    const data = await getTransactions();
+    setTotalBalance(getTotalBalance(data.transactions));
+    setTransactions(data.transactions);
+  }
+
+  function handleAction(transaction: Transaction, isEditing: boolean) {
+    setIsEditing(isEditing);
+    setTransaction(transaction);
   }
 
   return (
@@ -37,11 +48,21 @@ export default function Dashboard() {
             <TabletMenu />
             <SideMenu />
           </div>
-          <div className="flex flex-col gap-4 col-span-4">
+          <div className="flex flex-col gap- col-span-4">
             <WelcomeCard balance={totalBalance} />
-            <TransactionActions onSubmit={handleDataFromChild} />
+            <TransactionActions
+              onComplete={handleDataFromChild}
+              isEditing={isEditing}
+              transaction={transaction}
+              transactions={transactions}
+            />
           </div>
-          <BankStatement />
+          <div className="flex flex-col gap-4 col-span-2">
+            <BankStatement
+              handleAction={handleAction}
+              transactions={transactions}
+            />
+          </div>
         </div>
       </div>
     </div>

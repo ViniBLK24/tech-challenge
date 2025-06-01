@@ -17,7 +17,7 @@ export async function getTransactions() {
 }
 
 export async function editTransaction(transaction: Transaction) {
-  const response = await fetch(API_URL + "&id=" + transaction.id, {
+  const response = await fetch(API_URL + "?id=" + transaction.id, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(transaction),
@@ -26,10 +26,9 @@ export async function editTransaction(transaction: Transaction) {
 }
 
 export async function deleteTransaction(transaction: Transaction) {
-  const response = await fetch(API_URL + "&id=" + transaction.id, {
+  const response = await fetch(API_URL + "?id=" + transaction.id, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(transaction),
   });
   return response.json();
 }
