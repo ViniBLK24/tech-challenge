@@ -35,6 +35,7 @@ export default function Dashboard() {
   }
 
   function handleAction(transaction: Transaction, isEditing: boolean) {
+    // This function is called when a transaction is selected for editing or deletion
     setIsEditing(isEditing);
     setTransaction(transaction);
   }
@@ -48,7 +49,7 @@ export default function Dashboard() {
             <TabletMenu />
             <SideMenu />
           </div>
-          <div className="flex flex-col gap- col-span-4">
+          <div className="flex flex-col gap-4 col-span-4">
             <WelcomeCard balance={totalBalance} />
             <TransactionActions
               onComplete={handleDataFromChild}
