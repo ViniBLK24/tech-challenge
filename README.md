@@ -30,9 +30,13 @@ Estrutura e Design da Interface:
 - Página ou modal para adicionar uma nova transação ao banco de dados;
 - Formulário que deve incluir campos como tipo de transação (depósito, transferência, etc), valor e data.
 
-**4** **Editar Transação**
+**4.** **Editar Transação**
 
 - Uma página ou modal para editar as informações de uma transação existente.
+
+### Telas
+![prints-figma](https://github.com/user-attachments/assets/84474b82-546c-49f8-a952-dcf9a8fee48b)
+
 
 ## Começando
 
