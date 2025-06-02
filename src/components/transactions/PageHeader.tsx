@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { CardTitle } from "@/components/ui/Card";
 import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
 interface PageHeaderProps {
   title: string;
@@ -16,11 +17,11 @@ export default function PageHeader({
   return (
     <div className="flex flex-col mb-6 justify-start">
       <div>
-        <Button variant="link" className="p-0 mr-4" asChild>
-          <a href={backHref}>
+        <Button variant="ghost" className="p-2" asChild>
+          <Link href={backHref}>
             <ChevronLeft size={16} />
             {backLabel}
-          </a>
+          </Link>
         </Button>
       </div>
       <h2 className="gap-2">
