@@ -56,12 +56,12 @@ export default function TransactionActions({
 
   useEffect(() => {
     if (transaction && isEditing) {
+      // If editing, populate the form with the transaction data
       setFormData({
         id: transaction.id ?? 0,
         type: transaction.type || "",
         amount: transaction.amount ? String(transaction.amount) : "",
       });
-      setIsEditingState(true);
     } else if (transaction && !isEditing) {
       handleDeleteTransaction(transaction);
     }
@@ -239,6 +239,7 @@ export default function TransactionActions({
 
         <CardContent>
           {/* Transaction form */}
+
           <form
             onSubmit={handleSubmit}
             className="flex flex-col gap-y-8 mt-3 md:mt-0"

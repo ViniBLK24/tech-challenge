@@ -5,19 +5,24 @@ import { Transaction, TransactionTypeEnum } from "@/types/transactions";
 import { Eye, EyeClosed, Loader2Icon } from "lucide-react";
 import ActionButton from "../ui/ActionButton";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/Button";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
   formatDate: (date: string) => string;
+  onTransactionSelect: (
+    transaction: Transaction | null,
+    isEditing: boolean
+  ) => void;
 }
 
 export default function TransactionsTable({
   transactions,
   formatDate,
+  onTransactionSelect,
 }: TransactionsTableProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+
   useEffect(() => {
     setIsLoading(true);
     if (transactions.length === 0) {
@@ -92,7 +97,10 @@ export default function TransactionsTable({
                   {formatDate(transaction.createdAt)}
                 </td>
                 <td className="px-6 py-4 text-muted-foreground">
-                  <ActionButton />
+                  <ActionButton
+                    onEdit={() => onTransactionSelect(transaction, true)}
+                    onDelete={() => onTransactionSelect(transaction, false)}
+                  />
                 </td>
               </tr>
             ))}

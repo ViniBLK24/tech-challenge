@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getTransactions } from "@/utils/api";
+import { deleteTransaction, getTransactions } from "@/utils/api";
 import { Transaction } from "@/types/transactions";
 import DashboardMenu from "@/components/DashboardMenu";
 import PageHeader from "@/components/transactions/PageHeader";
@@ -10,6 +10,9 @@ import TransactionsTable from "@/components/transactions/TransactionsTable";
 import Pagination from "@/components/transactions/Pagination";
 import SideMenu from "@/components/SideMenu";
 import TabletMenu from "@/components/TabletMenu";
+import { Dialog, DialogContent } from "@/components/ui/Dialog";
+import TransactionActions from "@/components/TransactionAction";
+import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -19,7 +22,43 @@ export default function TransactionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar a modal
+
   const itemsPerPage = 10;
+
+  async function handleDataFromChild(isEditing: boolean) {
+    console.log("handleDataFromChild called with isEditing:", isEditing);
+    const data = await getTransactions();
+    setTransactions(data.transactions);
+    setFilteredTransactions(data.transactions);
+  }
+
+  async function handleDeleteTransaction(transaction: Transaction) {
+    try {
+      await deleteTransaction(transaction);
+      const updatedTransactions = transactions.filter(
+        (t) => t.id !== transaction.id
+      );
+      setTransactions(updatedTransactions);
+      setFilteredTransactions(updatedTransactions);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+    }
+  }
+
+  const handleTransactionSelect = (
+    transaction: Transaction | null,
+    isEditing: boolean
+  ) => {
+    if (!isEditing) {
+      handleDeleteTransaction(transaction!);
+      return;
+    }
+    setTransaction(transaction);
+    setIsModalOpen(true); // Abre a modal
+  };
 
   useEffect(() => {
     getTransactions().then((res) => {
@@ -94,6 +133,7 @@ export default function TransactionsPage() {
               <TransactionsTable
                 transactions={paginatedTransactions}
                 formatDate={formatDate}
+                onTransactionSelect={handleTransactionSelect}
               />
 
               {totalPages > 0 && (
@@ -106,6 +146,22 @@ export default function TransactionsPage() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex justify-center w-[100%] sm:max-w-[46px]">
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogTitle>Editar Transação</DialogTitle>
+          <DialogDescription>Editar Transação</DialogDescription>
+          <DialogContent className="bg-white dark:bg-gray-800 sm:max-w-[48rem]  lg:max-w-[58rem] xs:max-w-[36rem]">
+            <div className="flex flex-col gap-4 p-4">
+              <TransactionActions
+                onComplete={handleDataFromChild}
+                isEditing={true}
+                transaction={transaction}
+                transactions={transactions}
+              ></TransactionActions>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
