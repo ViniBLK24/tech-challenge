@@ -8,6 +8,8 @@ import PageHeader from "@/components/transactions/PageHeader";
 import SearchFilter from "@/components/transactions/SearchFilter";
 import TransactionsTable from "@/components/transactions/TransactionsTable";
 import Pagination from "@/components/transactions/Pagination";
+import SideMenu from "@/components/SideMenu";
+import TabletMenu from "@/components/TabletMenu";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -68,33 +70,41 @@ export default function TransactionsPage() {
   return (
     <div className="w-[100%]">
       <DashboardMenu />
-      <div className="flex justify-center w-[100%]">
-        <div className="flex flex-col gap-4 p-6 md:p-12 w-[100%] max-w-[1200px]">
-          <PageHeader
-            title="Extrato Completo"
-            backHref="/dashboard"
-            backLabel="Voltar"
-          />
+      <div className=" flex justify-center w-[100%]">
+        <div className="flex flex-col gap-4 p-6 md:p-12 lg:grid grid-cols-7 w-[100%] max-w-[1600px]">
+          <div className="hidden md:block">
+            <TabletMenu />
+            <SideMenu />
+          </div>
+          <div className="flex flex-col col-span-6">
+            <div className="flex flex-col w-[100%] max-w-[1200px]">
+              <PageHeader
+                title="Extrato"
+                backHref="/dashboard"
+                backLabel="Voltar"
+              />
 
-          <SearchFilter
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            typeFilter={typeFilter}
-            setTypeFilter={setTypeFilter}
-          />
+              <SearchFilter
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                typeFilter={typeFilter}
+                setTypeFilter={setTypeFilter}
+              />
 
-          <TransactionsTable
-            transactions={paginatedTransactions}
-            formatDate={formatDate}
-          />
+              <TransactionsTable
+                transactions={paginatedTransactions}
+                formatDate={formatDate}
+              />
 
-          {totalPages > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-            />
-          )}
+              {totalPages > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  setCurrentPage={setCurrentPage}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
