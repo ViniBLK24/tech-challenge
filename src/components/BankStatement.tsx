@@ -15,20 +15,12 @@ export default function BankStatement(props: {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        if (props.transactions) {
-          setIsLoading(true);
-          setTransactions(props.transactions.slice(0, 8));
-          setIsLoading(false);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchData();
+    if (!props.transactions) return;
+
+    setIsLoading(true);
+
+    setTransactions(props.transactions.slice(0, 8));
+    setIsLoading(false);
   }, [props.transactions]);
 
   const formatDate = (date: string) => {
@@ -41,7 +33,7 @@ export default function BankStatement(props: {
   };
 
   return (
-    <Card className="hidden sm:block lg:block h-[100%]">
+    <Card className=" h-[100%]">
       <CardContent className="p-2 py-8 flex flex-col">
         <CardTitle className="text-2xl text-[25px] mb-8">Extrato</CardTitle>
         {isLoading && (
