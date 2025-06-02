@@ -149,8 +149,6 @@ export default function TransactionsPage() {
       </div>
       <div className="flex justify-center w-[100%] sm:max-w-[46px]">
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTitle>Editar Transação</DialogTitle>
-          <DialogDescription>Editar Transação</DialogDescription>
           <DialogContent className="bg-white dark:bg-gray-800 sm:max-w-[48rem]  lg:max-w-[58rem] xs:max-w-[36rem]">
             <div className="flex flex-col gap-4 p-4">
               <TransactionActions
