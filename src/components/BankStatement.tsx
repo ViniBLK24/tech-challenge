@@ -75,7 +75,7 @@ export default function BankStatement(props: {
           </div>
         ))}
         {!isLoading && transactionsData.length > 0 && (
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center underline-offset-4  font-bold hover:underline bold">
             <Link href="/transactions"> Ver extrato completo</Link>
           </div>
         )}
