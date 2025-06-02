@@ -2,9 +2,10 @@ import { Card } from "@/components/ui/Card";
 import MoneyItem from "@/components/ui/MoneyItem";
 import { Separator } from "@/components/ui/Separator";
 import { Transaction, TransactionTypeEnum } from "@/types/transactions";
-import { Loader2Icon } from "lucide-react";
+import { Eye, EyeClosed, Loader2Icon } from "lucide-react";
 import ActionButton from "../ui/ActionButton";
 import { useEffect, useState } from "react";
+import { Button } from "../ui/Button";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -16,7 +17,7 @@ export default function TransactionsTable({
   formatDate,
 }: TransactionsTableProps) {
   const [isLoading, setIsLoading] = useState(true);
-
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   useEffect(() => {
     setIsLoading(true);
     if (transactions.length === 0) {
@@ -28,6 +29,21 @@ export default function TransactionsTable({
 
   return (
     <Card className="overflow-hidden">
+      <div className="flex items-center justify-center  text-lg w-full">
+        <button
+          onClick={() => setIsBalanceHidden(!isBalanceHidden)}
+          className="p-4"
+          aria-label="Alternar visibilidade do saldo"
+          title="Alternar visibilidade do saldo"
+        >
+          {isBalanceHidden ? (
+            <EyeClosed className="text-primary" size={30} />
+          ) : (
+            <Eye className="text-primary" size={30} />
+          )}
+        </button>
+      </div>
+
       <table className="w-full">
         <thead>
           <tr>
@@ -67,6 +83,7 @@ export default function TransactionsTable({
                 </td>
                 <td className="px-6 py-4">
                   <MoneyItem
+                    isHidden={isBalanceHidden}
                     value={transaction.amount.toString()}
                     type={transaction.type}
                   />

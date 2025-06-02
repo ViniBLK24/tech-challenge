@@ -4,11 +4,16 @@ import { currencyFormatter } from "@/utils/currencyFormatter";
 export default function MoneyItem({
   value,
   type,
+  isHidden = false,
 }: {
   value: string;
   type: TransactionTypeEnum;
+  isHidden?: boolean;
 }) {
   const formatValue = (value: string) => {
+    if (isHidden) {
+      return "R$ ***";
+    }
     if (type === TransactionTypeEnum.TRANSFER) {
       return `-R$ ${convertToReal(value)}`;
     }
