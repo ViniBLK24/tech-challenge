@@ -2,8 +2,9 @@ import { Card } from "@/components/ui/Card";
 import MoneyItem from "@/components/ui/MoneyItem";
 import { Separator } from "@/components/ui/Separator";
 import { Transaction, TransactionTypeEnum } from "@/types/transactions";
-import { EllipsisVertical } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import ActionButton from "../ui/ActionButton";
+import { useEffect, useState } from "react";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -14,6 +15,17 @@ export default function TransactionsTable({
   transactions,
   formatDate,
 }: TransactionsTableProps) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (transactions.length === 0) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [transactions]);
+
   return (
     <Card className="overflow-hidden">
       <table className="w-full">
@@ -31,7 +43,21 @@ export default function TransactionsTable({
           </tr>
         </thead>
         <tbody>
-          {transactions.length > 0 ? (
+          {isLoading && (
+            <tr>
+              <td colSpan={4} className="px-6 py-4">
+                <div className="flex flex-col items-center">
+                  <p className="text-muted-foreground p-4">
+                    <Loader2Icon className="animate-spin" />
+                  </p>
+                  <p className="text-muted-foreground">Carregando...</p>
+                </div>
+              </td>
+            </tr>
+          )}
+
+          {!isLoading &&
+            transactions.length > 0 &&
             transactions.map((transaction) => (
               <tr key={transaction.id} className="border-b hover:bg-gray-50">
                 <td className="px-6 py-4">
@@ -52,10 +78,11 @@ export default function TransactionsTable({
                   <ActionButton />
                 </td>
               </tr>
-            ))
-          ) : (
+            ))}
+
+          {!isLoading && transactions.length === 0 && (
             <tr>
-              <td colSpan={3} className="px-6 py-4 text-center">
+              <td colSpan={4} className="px-6 py-4 text-center">
                 Nenhuma transação encontrada
               </td>
             </tr>
