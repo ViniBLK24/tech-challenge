@@ -9,10 +9,7 @@ import { useEffect, useState } from "react";
 interface TransactionsTableProps {
   transactions: Transaction[];
   formatDate: (date: string) => string;
-  onTransactionSelect: (
-    transaction: Transaction | null,
-    isEditing: boolean
-  ) => void;
+  onTransactionSelect: (transaction: Transaction, isEditing: boolean) => void;
 }
 
 export default function TransactionsTable({

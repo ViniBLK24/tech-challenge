@@ -23,7 +23,6 @@ import {
 } from "@/utils/api";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-// import { currencyFormatter } from "@/utils/currencyFormatter";
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { ERROR_CODES } from "@/constants/errors";
 import { currencyFormatter } from "@/utils/currencyFormatter";
@@ -48,7 +47,7 @@ export default function TransactionActions({
     amount: string;
   }>({
     id: undefined,
-    type: "",
+    type: transaction?.type || "",
     amount: "",
   });
 

@@ -10,9 +10,7 @@ import TransactionsTable from "@/components/transactions/TransactionsTable";
 import Pagination from "@/components/transactions/Pagination";
 import SideMenu from "@/components/SideMenu";
 import TabletMenu from "@/components/TabletMenu";
-import { Dialog, DialogContent } from "@/components/ui/Dialog";
 import TransactionActions from "@/components/TransactionAction";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,15 +21,17 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar a modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const itemsPerPage = 10;
 
   async function handleDataFromChild(isEditing: boolean) {
-    console.log("handleDataFromChild called with isEditing:", isEditing);
     const data = await getTransactions();
     setTransactions(data.transactions);
     setFilteredTransactions(data.transactions);
+    setTimeout(() => {
+      setIsModalOpen(false);
+    }, 300);
   }
 
   async function handleDeleteTransaction(transaction: Transaction) {
@@ -147,10 +147,16 @@ export default function TransactionsPage() {
           </div>
         </div>
       </div>
-      <div className="flex justify-center w-[100%] sm:max-w-[46px]">
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="bg-white dark:bg-gray-800 sm:max-w-[48rem]  lg:max-w-[58rem] xs:max-w-[36rem]">
-            <div className="flex flex-col gap-4 p-4">
+      <div className="flex flex-col min-h-screen">
+        {isModalOpen && (
+          <div
+            className="fixed inset-0 z-50 top-0 flex items-center justify-center bg-black bg-opacity-60"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <div
+              className="bg-white rounded-lg p-8 m-4 lg:m-20 w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
               <TransactionActions
                 onComplete={handleDataFromChild}
                 isEditing={true}
@@ -158,8 +164,8 @@ export default function TransactionsPage() {
                 transactions={transactions}
               ></TransactionActions>
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        )}
       </div>
     </div>
   );
