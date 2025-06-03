@@ -7,5 +7,5 @@ export interface Transaction {
   type: TransactionTypeEnum;
   amount: number;
   createdAt: string;
-  id?: string;
+  id?: number;
 }

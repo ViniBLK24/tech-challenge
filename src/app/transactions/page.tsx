@@ -1,21 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getTransactions } from "@/utils/api";
-import { Transaction, TransactionTypeEnum } from "@/types/transactions";
+import { deleteTransaction, getTransactions } from "@/utils/api";
+import { Transaction } from "@/types/transactions";
 import DashboardMenu from "@/components/DashboardMenu";
 import PageHeader from "@/components/transactions/PageHeader";
 import SearchFilter from "@/components/transactions/SearchFilter";
 import TransactionsTable from "@/components/transactions/TransactionsTable";
 import Pagination from "@/components/transactions/Pagination";
+import SideMenu from "@/components/SideMenu";
+import TabletMenu from "@/components/TabletMenu";
+import TransactionActions from "@/components/TransactionAction";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const itemsPerPage = 10;
+
+  async function handleDataFromChild(isEditing: boolean) {
+    const data = await getTransactions();
+    setTransactions(data.transactions);
+    setFilteredTransactions(data.transactions);
+    setTimeout(() => {
+      setIsModalOpen(false);
+    }, 300);
+  }
+
+  async function handleDeleteTransaction(transaction: Transaction) {
+    try {
+      await deleteTransaction(transaction);
+      const updatedTransactions = transactions.filter(
+        (t) => t.id !== transaction.id
+      );
+      setTransactions(updatedTransactions);
+      setFilteredTransactions(updatedTransactions);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+    }
+  }
+
+  const handleTransactionSelect = (
+    transaction: Transaction | null,
+    isEditing: boolean
+  ) => {
+    if (!isEditing) {
+      handleDeleteTransaction(transaction!);
+      return;
+    }
+    setTransaction(transaction);
+    setIsModalOpen(true); // Abre a modal
+  };
 
   useEffect(() => {
     getTransactions().then((res) => {
@@ -29,9 +72,7 @@ export default function TransactionsPage() {
 
     // Apply type filter
     if (typeFilter !== "all") {
-      result = result.filter(
-        (transaction) => transaction.type === typeFilter
-      );
+      result = result.filter((transaction) => transaction.type === typeFilter);
     }
 
     // Apply search filter (search by amount)
@@ -68,34 +109,63 @@ export default function TransactionsPage() {
   return (
     <div className="w-[100%]">
       <DashboardMenu />
-      <div className="flex justify-center w-[100%]">
-        <div className="flex flex-col gap-4 p-6 md:p-12 w-[100%] max-w-[1200px]">
-          <PageHeader 
-            title="Extrato Completo" 
-            backHref="/dashboard" 
-            backLabel="Voltar" 
-          />
+      <div className=" flex justify-center w-[100%]">
+        <div className="flex flex-col gap-4 p-6 md:p-12 lg:grid grid-cols-7 w-[100%] max-w-[1600px]">
+          <div className="hidden md:block">
+            <TabletMenu />
+            <SideMenu />
+          </div>
+          <div className="flex flex-col col-span-6">
+            <div className="flex flex-col w-[100%] max-w-[1200px]">
+              <PageHeader
+                title="Extrato"
+                backHref="/dashboard"
+                backLabel="Voltar"
+              />
 
-          <SearchFilter 
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            typeFilter={typeFilter}
-            setTypeFilter={setTypeFilter}
-          />
+              <SearchFilter
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                typeFilter={typeFilter}
+                setTypeFilter={setTypeFilter}
+              />
 
-          <TransactionsTable 
-            transactions={paginatedTransactions} 
-            formatDate={formatDate} 
-          />
+              <TransactionsTable
+                transactions={paginatedTransactions}
+                formatDate={formatDate}
+                onTransactionSelect={handleTransactionSelect}
+              />
 
-          {totalPages > 0 && (
-            <Pagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              setCurrentPage={setCurrentPage} 
-            />
-          )}
+              {totalPages > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  setCurrentPage={setCurrentPage}
+                />
+              )}
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="flex flex-col min-h-screen">
+        {isModalOpen && (
+          <div
+            className="fixed inset-0 z-50 top-0 flex items-center justify-center bg-black bg-opacity-60"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <div
+              className="bg-white rounded-lg p-8 m-4 lg:m-20 w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <TransactionActions
+                onComplete={handleDataFromChild}
+                isEditing={true}
+                transaction={transaction}
+                transactions={transactions}
+              ></TransactionActions>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
