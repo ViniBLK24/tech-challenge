@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { ERROR_CODES } from "@/constants/errors";
 import { currencyFormatter } from "@/utils/currencyFormatter";
+import getCurrentUserId from "@/utils/getCurrentUserId";
 
 type Props = {
   transaction?: Transaction | null;
@@ -50,8 +51,6 @@ export default function TransactionActions({
     type: transaction?.type || "",
     amount: "",
   });
-
-  const [isEditingState, setIsEditingState] = useState(isEditing);
 
   useEffect(() => {
     if (transaction && isEditing) {
@@ -78,6 +77,7 @@ export default function TransactionActions({
   }
 
   async function handleDeleteTransaction(transaction: Transaction) {
+    console.log("Delete");
     try {
       const response = await deleteTransaction(transaction);
 
@@ -86,8 +86,8 @@ export default function TransactionActions({
           type: "",
           amount: "",
         });
-        setIsEditingState(false);
-        onComplete(isEditingState);
+
+        onComplete(false);
         toast({
           title: "Sucesso!",
           description: "Transação concluída.",
@@ -129,7 +129,7 @@ export default function TransactionActions({
     }
 
     const createdAt =
-      isEditingState && transaction
+      isEditing && transaction
         ? transaction.createdAt
         : new Date().toISOString();
 
@@ -140,7 +140,7 @@ export default function TransactionActions({
       id: formData.id,
     };
 
-    if (!isEditingState) {
+    if (!isEditing) {
       handleCreateTransaction(transactionData);
     } else {
       handleEditTransaction(transactionData);
@@ -155,9 +155,8 @@ export default function TransactionActions({
             type: "",
             amount: "",
           });
-          setIsEditingState(false);
 
-          onComplete(isEditingState);
+          onComplete(false);
           toast({
             title: "Sucesso!",
             description: "Transação concluída.",
@@ -195,7 +194,7 @@ export default function TransactionActions({
           });
 
           onComplete(false);
-          setIsEditingState(false);
+
           toast({
             title: "Sucesso!",
             description: "Transação concluída.",
@@ -232,7 +231,7 @@ export default function TransactionActions({
         <CardHeader className="flex flex-col items-center md:items-start">
           <CardTitle className="text-3xl">
             {" "}
-            {isEditingState ? "Alterar Transação" : "Nova Transação"}
+            {isEditing ? "Alterar Transação" : "Nova Transação"}
           </CardTitle>
         </CardHeader>
 
@@ -296,7 +295,7 @@ export default function TransactionActions({
                 "bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
               )}
             >
-              {isEditingState ? "Salvar alterações" : "Concluir transação"}
+              {isEditing ? "Salvar alterações" : "Concluir transação"}
             </Button>
 
             <Toaster />

@@ -10,6 +10,7 @@ import { getTransactions } from "@/utils/api";
 import getTotalBalance from "@/utils/getTotalBalance";
 import BankStatement from "@/components/BankStatement";
 import { Transaction } from "@/types/transactions";
+import getCurrentUserId from "@/utils/getCurrentUserId";
 
 export default function Dashboard() {
   const [totalBalance, setTotalBalance] = useState(0);
@@ -28,10 +29,11 @@ export default function Dashboard() {
   }, []);
 
   // Will always update the totalBalance when a new transaction is made in <TransactionActions>
-  async function handleDataFromChild() {
+  async function handleDataFromChild(isEditingState: boolean) {
     const data = await getTransactions();
     setTotalBalance(getTotalBalance(data.transactions));
     setTransactions(data.transactions);
+    setIsEditing(isEditingState);
   }
 
   function handleAction(transaction: Transaction, isEditing: boolean) {
