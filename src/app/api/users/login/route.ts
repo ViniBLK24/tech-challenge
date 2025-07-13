@@ -1,15 +1,6 @@
-import { User } from "@/types/user";
-import { promises as fileSystem } from "fs";
+import { readDb } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 // Handles Login
-
-// Read file from system (cwd => current working directory)
-const FILE_PATH = process.cwd() + "/src/database/db.json";
-
-async function readDb(): Promise<{ users: User[] }> {
-  const data = await fileSystem.readFile(FILE_PATH, "utf-8");
-  return JSON.parse(data);
-}
 
 // Login user
 export async function POST(req: NextRequest) {
