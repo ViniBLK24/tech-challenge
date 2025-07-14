@@ -2,18 +2,47 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { loginUser } from "@/utils/usersApi";
+import setCurrentUser from "@/utils/setCurrentUser";
 
 export default function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [inputEmail, setInputEmail] = useState("");
+  const [inputPassword, setInputPassword] = useState("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    try {
+      const response = await loginUser(inputEmail, inputPassword);
+
+      const { userName, email, id } = response.user;
+      const safeUser = { id, userName, email };
+
+      setCurrentUser(safeUser);
+      router.push("/dashboard");
+    } catch (err) {
+      if (err instanceof Error) {
+        setErrorMessage(err.message);
+        console.log(err.message);
+      } else {
+        setErrorMessage("Erro inesperado.");
+      }
+    }
+  }
 
   return (
-    <form className="flex flex-col gap-4">
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       <input
         name="email"
         type="email"
         placeholder="E-mail"
         className="border rounded px-3 py-2 text-black"
+        value={inputEmail}
+        onChange={(e) => {
+          setInputEmail(e.target.value);
+        }}
         required
       />
       <input
@@ -21,9 +50,15 @@ export default function LoginForm() {
         type="password"
         placeholder="Senha"
         className="border rounded px-3 py-2 text-black"
+        value={inputPassword}
+        onChange={(e) => {
+          setInputPassword(e.target.value);
+        }}
         required
       />
-      {error && <span className="text-red-500 text-sm">{error}</span>}
+      {errorMessage && (
+        <span className="text-red-500 text-sm">{errorMessage}</span>
+      )}
       <button
         type="submit"
         className="border border-pattern-green bg-black text-pattern-green font-semibold rounded px-4 py-2 mt-2 hover:bg-pattern-green hover:text-black transition"
