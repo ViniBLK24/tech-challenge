@@ -1,27 +1,48 @@
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { Transaction, TransactionTypeEnum } from "@/types/transactions";
+import { readDb, writeDb } from "@/utils/db";
+import getCurrentUserId from "@/utils/getCurrentUserId";
 import getTotalBalance from "@/utils/getTotalBalance";
-import { promises as fileSystem } from "fs";
 import { NextRequest, NextResponse } from "next/server";
 // API route for handling transaction data
 
-// Read file from system (cwd => current working directory)
-const FILE_PATH = process.cwd() + "/src/database/db.json";
+export async function GET(req: NextRequest) {
+  const userId = Number(req.nextUrl.searchParams.get("userId"));
 
-async function getDbFile(): Promise<{ transactions: Transaction[] }> {
-  const file = await fileSystem.readFile(FILE_PATH, "utf-8");
-  const json = JSON.parse(file);
-  return json;
+  if (!userId){
+    return NextResponse.json(
+      {
+        error: "Parâmetro userId obrigatório",
+        errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+      },
+      { status: 400 }
+    );
+  }
+
+  const result = await readDb();
+
+  const filteredTransactions = result.transactions.filter(transaction => transaction.userId === userId );
+
+  return NextResponse.json({transactions: filteredTransactions});
 }
 
-export async function GET() {
-  const result = await getDbFile();
-  return NextResponse.json(result);
-}
+type NewTransaction = Pick<Transaction, "type" | "amount">;
 
 export async function POST(req: NextRequest) {
-  const result = await getDbFile();
-  const newTransaction = await req.json();
+  const result = await readDb();
+  const newTransaction: NewTransaction = await req.json();
+
+  const userId = Number(req.nextUrl.searchParams.get("userId"));
+
+  if (!userId){
+    return NextResponse.json(
+      {
+        error: "Parâmetro userId obrigatório",
+        errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+      },
+      { status: 400 }
+    );
+  }
 
   const totalBalance = getTotalBalance(result.transactions);
 
@@ -67,16 +88,18 @@ export async function POST(req: NextRequest) {
       {
         id: Date.now(),
         createdAt: new Date().toISOString(),
+        userId,
         ...newTransaction,
       },
     ],
   };
-  await fileSystem.writeFile(FILE_PATH, JSON.stringify(updatedTransactions));
+  await writeDb(updatedTransactions);
+  // await fileSystem.writeFile(FILE_PATH, JSON.stringify(updatedTransactions));
   return NextResponse.json(updatedTransactions, { status: 200 });
 }
 
 export async function PUT(req: NextRequest) {
-  const result = await getDbFile();
+  const result = await readDb();
   const updatedTransaction = await req.json();
 
   // Extrair ID da URL ou do corpo da requisição
@@ -156,19 +179,21 @@ export async function PUT(req: NextRequest) {
   };
 
   // Salvar arquivo atualizado
-  await fileSystem.writeFile(FILE_PATH, JSON.stringify(result));
+  // await fileSystem.writeFile(FILE_PATH, JSON.stringify(result));
+  console.log(result)
+  await writeDb(result);
 
   return NextResponse.json(
     {
       message: "Transação atualizada com sucesso",
-      transactions: (result.transactions = result.transactions),
+      transactions: result.transactions,
     },
     { status: 200 }
   );
 }
 
 export async function DELETE(req: NextRequest) {
-  const result = await getDbFile();
+  const result = await readDb();
 
   // Extrair ID da URL (assumindo que será passado como query parameter)
   const url = new URL(req.url);
@@ -205,7 +230,7 @@ export async function DELETE(req: NextRequest) {
   result.transactions.splice(transactionIndex, 1);
 
   // Salvar arquivo atualizado
-  await fileSystem.writeFile(FILE_PATH, JSON.stringify(result));
+  await writeDb(result);
 
   return NextResponse.json(
     {
