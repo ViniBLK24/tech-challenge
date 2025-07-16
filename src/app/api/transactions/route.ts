@@ -1,7 +1,6 @@
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { Transaction, TransactionTypeEnum } from "@/types/transactions";
 import { readDb, writeDb } from "@/utils/db";
-import getCurrentUserId from "@/utils/getCurrentUserId";
 import getTotalBalance from "@/utils/getTotalBalance";
 import { NextRequest, NextResponse } from "next/server";
 // API route for handling transaction data
