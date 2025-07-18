@@ -25,7 +25,7 @@ export async function getTransactions() {
 
 export async function editTransaction(transaction: Transaction) {
   const userId = getCurrentUserId();
-  const response = await fetch(`${API_URL}?userId=${userId}` + "?id=" + transaction.id, {
+  const response = await fetch(`${API_URL}?userId=${userId}&id=${transaction.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(transaction),
