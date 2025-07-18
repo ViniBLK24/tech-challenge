@@ -9,4 +9,5 @@ export interface Transaction {
   createdAt: string;
   id?: number;
   userId?: number;
+  fileUrl?: string;
 }
