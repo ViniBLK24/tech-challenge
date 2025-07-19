@@ -38,7 +38,7 @@ const s3Client = new S3Client({
   },
 });
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 
 async function uploadFileToS3(buffer: Buffer, key: string, contentType: string) {
@@ -54,15 +54,6 @@ async function uploadFileToS3(buffer: Buffer, key: string, contentType: string) 
   // Returns the S3 URL that will be inserted into the json
   const url = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${key}`;
   return url;
-}
-
-async function deleteFileFromS3(key: string) {
-  const command = new DeleteObjectCommand({
-    Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
-    Key: key,
-  });
-
-  await s3Client.send(command);
 }
 
 // -- POST logic
@@ -95,10 +86,10 @@ export async function POST(req: NextRequest) {
 
   if (file && typeof file !== "string") {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Tipo de arquivo inválido." }, { status: 400 });
+      return NextResponse.json({ error: "Tipo de arquivo inválido.", errorCode: ErrorCodeEnum.INVALID_UPLOAD_FORMAT }, { status: 400 });
     }
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: "Arquivo muito grande (limite 5MB)." }, { status: 400 });
+      return NextResponse.json({ error: "Arquivo muito grande (limite 1MB).", errorCode: ErrorCodeEnum.UPLOAD_FILE_TOO_BIG }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -268,7 +259,7 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json(
     {
       error: "Formato de conteúdo inválido.",
-      errorCode: ErrorCodeEnum.INVALID_FORMAT,
+      errorCode: ErrorCodeEnum.INVALID_UPLOAD_FORMAT,
     },
     { status: 400 }
   );
