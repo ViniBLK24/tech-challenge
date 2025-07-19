@@ -26,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { ERROR_CODES } from "@/constants/errors";
 import { currencyFormatter } from "@/utils/currencyFormatter";
-import { X, CloudUpload } from "lucide-react";
+import { X, CloudUpload, MoveLeft } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 type Props = {
@@ -403,6 +403,15 @@ export default function TransactionActions({
             >
               {isEditing ? "Salvar alterações" : "Concluir transação"}
             </Button>
+            {isEditing && (
+              <Button
+                className="-mt-4 bg-transparent border-none shadow-none text-red-600 p-0 w-auto h-auto self-start hover:underline"
+                onClick={() => (isEditing = false)}
+              >
+                <MoveLeft />
+                Cancelar edição
+              </Button>
+            )}
 
             <Toaster />
           </form>
