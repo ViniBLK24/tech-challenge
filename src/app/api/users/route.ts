@@ -39,3 +39,12 @@ export async function POST(req: NextRequest) {
     user: newUser,
   });
 }
+
+// List all users
+export async function GET() {
+  const db = await readDb();
+
+  return NextResponse.json({
+    users: db.users,
+  });
+}

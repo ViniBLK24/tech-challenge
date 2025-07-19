@@ -22,7 +22,10 @@ export async function createUser(user: User) {
 
 // List all users
 export async function getUsers() {
-  const response = await fetch(USER_API_URL);
+  const response = await fetch("/api/users");
+  if (!response.ok) {
+    throw new Error("Erro ao buscar usuários");
+  }
   return response.json();
 }
 
