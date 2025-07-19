@@ -367,7 +367,7 @@ export default function TransactionActions({
                     )}
                   </p>
                   <p className="text-sm text-gray-400">
-                    Formatos: JPG, PNG ou PDF.
+                    Formatos: JPG, PNG ou PDF até 1MB.
                   </p>
                 </div>
               ) : (
