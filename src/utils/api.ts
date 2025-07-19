@@ -3,18 +3,24 @@ import getCurrentUserId from "./getCurrentUserId";
 
 const API_URL = "/api/transactions";
 
-export async function createTransaction(transaction: Transaction) {
-  try {
-    const userId = getCurrentUserId();
-    const response = await fetch(`${API_URL}?userId=${userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(transaction),
-    });
-    return response.json();
-  } catch {
-    
+export async function createTransaction(transaction: Transaction, file?: File) {
+  const userId = getCurrentUserId();
+
+  const formData = new FormData();
+  formData.append("type", transaction.type);
+  formData.append("amount", transaction.amount.toString());
+  formData.append("userId", userId.toString());
+
+  if (file) {
+    formData.append("file", file);
   }
+
+  const response = await fetch("/api/transactions", {
+    method: "POST",
+    body: formData,
+  });
+
+  return response.json();
 }
 
 export async function getTransactions() {
@@ -23,21 +29,35 @@ export async function getTransactions() {
   return response.json();
 }
 
-export async function editTransaction(transaction: Transaction) {
-  const userId = getCurrentUserId();
-  const response = await fetch(`${API_URL}?userId=${userId}&id=${transaction.id}`, {
+export async function editTransaction(transaction: Transaction, removeFile: boolean, file?: File) {
+  const formData = new FormData();
+  formData.append("type", transaction.type);
+  formData.append("amount", transaction.amount.toString());
+  formData.append("id", transaction.id!.toString()); // assume id exists for edit
+  formData.append("removeFile", removeFile ? "true" : "false");
+
+  // Append file to formData if it exists
+  if (file) {
+    formData.append("file", file);
+  }
+
+  const response = await fetch(`/api/transactions?id=${transaction.id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(transaction),
+    body: formData,
   });
+
   return response.json();
 }
 
 export async function deleteTransaction(transaction: Transaction) {
-  const userId = getCurrentUserId();
-  const response = await fetch(`${API_URL}?userId=${userId}` + "?id=" + transaction.id, {
+  console.log("api")
+  const formData = new FormData();
+  formData.append("id", transaction.id!.toString());
+
+  const response = await fetch("/api/transactions", {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    body: formData,
   });
+
   return response.json();
 }
