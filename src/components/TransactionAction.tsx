@@ -34,12 +34,14 @@ type Props = {
   isEditing?: boolean;
   onComplete: (isEditing: boolean) => void;
   transactions?: Transaction[];
+  onCancelEditing?: (cancel: boolean) => void;
 };
 
 export default function TransactionActions({
   transaction = null,
   isEditing = false,
   onComplete,
+  onCancelEditing,
 }: Props) {
   const { toast } = useToast();
 
@@ -68,12 +70,12 @@ export default function TransactionActions({
         setFile(file);
         const previewUrl = URL.createObjectURL(file);
         setUploadedImageUrl(previewUrl);
-        console.log(file);
       }
     },
   });
 
   useEffect(() => {
+    console.log({ transaction, isEditing });
     if (transaction && isEditing) {
       // If editing, populate the form with the transaction data
       setFormData({
@@ -89,6 +91,19 @@ export default function TransactionActions({
       handleDeleteTransaction(transaction);
     }
   }, [transaction]);
+
+  function resetForm() {
+    setFormData({
+      id: undefined,
+      type: "",
+      amount: "",
+      fileUrl: "",
+    });
+
+    setFile(null);
+    setUploadedImageUrl(null);
+    setShouldRemoveFile(false);
+  }
 
   function handleChange(field: string, value: string): void {
     if (field === "amount") {
@@ -405,8 +420,12 @@ export default function TransactionActions({
             </Button>
             {isEditing && (
               <Button
+                type="button"
                 className="-mt-4 bg-transparent border-none shadow-none text-red-600 p-0 w-auto h-auto self-start hover:underline"
-                onClick={() => (isEditing = false)}
+                onClick={() => {
+                  resetForm();
+                  onCancelEditing?.(false);
+                }}
               >
                 <MoveLeft />
                 Cancelar edição

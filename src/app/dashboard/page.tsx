@@ -55,6 +55,11 @@ export default function Dashboard() {
     getTotalAmountOnLoad();
   }, [isCurrentUserRegistered]);
 
+  function handleCancelEditing(cancel: boolean) {
+    setIsEditing(cancel);
+    setTransaction(null);
+  }
+
   // Will always update the totalBalance when a new transaction is made in <TransactionActions>
   async function handleDataFromChild(isEditingState: boolean) {
     const data = await getTransactions();
@@ -85,6 +90,7 @@ export default function Dashboard() {
               isEditing={isEditing}
               transaction={transaction}
               transactions={transactions}
+              onCancelEditing={handleCancelEditing}
             />
           </div>
           <div className="flex flex-col gap-4 col-span-2">
