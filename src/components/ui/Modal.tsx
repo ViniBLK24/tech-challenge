@@ -1,0 +1,67 @@
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+
+type ModalProp = {
+  onClose: () => void;
+  modalContent?: string | null;
+};
+
+export default function Modal({ onClose, modalContent }: ModalProp) {
+  const [modalState, setModalState] = useState("opacity-0");
+
+  useEffect(() => {
+    setTimeout(() => setModalState("opacity-100"), 10); // allow fade in
+
+    // document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeAnimation();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      //   document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  function closeAnimation() {
+    setModalState("opacity-0");
+    setTimeout(() => onClose(), 300); // match transition duration
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${modalState}`}
+    >
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-black opacity-75"
+        onClick={closeAnimation}
+      />
+      <button
+        className="absolute top-5 right-5 text-white z-20"
+        onClick={closeAnimation}
+      >
+        <X />
+      </button>
+
+      {/* Modal content */}
+      <div
+        className="relative z-10 max-w-[90%] max-h-[90%] bg-white rounded shadow-lg overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {modalContent && (
+          <Image
+            src={modalContent}
+            alt="Comprovante da transação"
+            width={800}
+            height={800}
+            className="object-contain w-full h-full max-w-[80vw] max-h-[80vh]"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
