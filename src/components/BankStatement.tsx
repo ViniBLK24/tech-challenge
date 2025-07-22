@@ -6,6 +6,8 @@ import MoneyItem from "./ui/MoneyItem";
 import ActionButton from "./ui/ActionButton";
 import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
+import { createPortal } from "react-dom";
+import Modal from "./ui/Modal";
 
 export default function BankStatement(props: {
   handleAction?: (transaction: Transaction, isEditing: boolean) => void;
@@ -13,6 +15,8 @@ export default function BankStatement(props: {
 }) {
   const [transactionsData, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
 
   useEffect(() => {
     if (!props.transactions) return;
@@ -33,53 +37,72 @@ export default function BankStatement(props: {
   };
 
   return (
-    <Card className=" h-[100%]">
-      <CardContent className="p-2 py-8 flex flex-col">
-        <CardTitle className="text-2xl text-[25px] mb-8">Extrato</CardTitle>
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center h-full p-4">
-            <p className="text-muted-foreground p-4">
-              <Loader2Icon className="animate-spin" />
-            </p>
-            <p className="text-muted-foreground">Carregando...</p>
-          </div>
-        )}
-        {transactionsData?.map((transaction) => (
-          <div className="flex row justify-between " key={transaction.id}>
-            <div className="flex flex-col flex-1">
-              <div className="pb-2">
-                <p className="text-md">
-                  {transaction.type === TransactionTypeEnum.TRANSFER
-                    ? "Transferência"
-                    : "Depósito"}
-                </p>
-
-                <MoneyItem
-                  value={transaction.amount.toString()}
-                  type={transaction.type}
-                />
-              </div>
-              <Separator orientation="horizontal" />
-            </div>
-            <div className="flex flex-col items-end">
-              <p className="text-muted-foreground text-xs">
-                {formatDate(transaction.createdAt)}
+    <>
+      <Card className="h-[100%] px-4">
+        <CardContent className="p-2 py-10 flex flex-col">
+          <CardTitle className="text-2xl text-[25px] mb-8">Extrato</CardTitle>
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center h-full p-4">
+              <p className="text-muted-foreground p-4">
+                <Loader2Icon className="animate-spin" />
               </p>
-              <div className="flex column ">
-                <ActionButton
-                  onEdit={() => props.handleAction?.(transaction, true)}
-                  onDelete={() => props.handleAction?.(transaction, false)}
-                />
+              <p className="text-muted-foreground">Carregando...</p>
+            </div>
+          )}
+          {transactionsData?.map((transaction) => (
+            <div className="flex row justify-between " key={transaction.id}>
+              <div className="flex flex-col flex-1">
+                <div className="pb-2">
+                  <p className="text-md">
+                    {transaction.type === TransactionTypeEnum.TRANSFER
+                      ? "Transferência"
+                      : "Depósito"}
+                  </p>
+
+                  <MoneyItem
+                    value={transaction.amount.toString()}
+                    type={transaction.type}
+                  />
+                </div>
+                <Separator orientation="horizontal" />
+              </div>
+              <div className="flex flex-col items-end">
+                <p className="text-muted-foreground text-xs">
+                  {formatDate(transaction.createdAt)}
+                </p>
+                <div className="flex column ">
+                  <ActionButton
+                    onViewFile={
+                      transaction.fileUrl
+                        ? () => {
+                            setModalContent(transaction.fileUrl);
+                            setIsReceiptModalOpen(true);
+                          }
+                        : undefined
+                    }
+                    onEdit={() => props.handleAction?.(transaction, true)}
+                    onDelete={() => props.handleAction?.(transaction, false)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-        {!isLoading && transactionsData.length > 0 && (
-          <div className="mt-8 text-center underline-offset-4  font-bold hover:underline bold">
-            <Link href="/transactions"> Ver extrato completo</Link>
-          </div>
+          ))}
+          {!isLoading && transactionsData.length > 0 && (
+            <div className="mt-8 text-center underline-offset-4  font-bold hover:underline bold">
+              <Link href="/transactions"> Ver extrato completo</Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      {typeof window != "undefined" &&
+        isReceiptModalOpen &&
+        createPortal(
+          <Modal
+            onClose={() => setIsReceiptModalOpen(false)}
+            modalContent={modalContent}
+          />,
+          document.body
         )}
-      </CardContent>
-    </Card>
+    </>
   );
 }
