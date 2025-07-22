@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
 import { createPortal } from "react-dom";
 import Modal from "./ui/Modal";
+import Image from "next/image";
 
 export default function BankStatement(props: {
   handleAction?: (transaction: Transaction, isEditing: boolean) => void;
@@ -16,7 +17,7 @@ export default function BankStatement(props: {
   const [transactionsData, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
+  const [receiptUrl, setReceiptUrl] = useState("");
 
   useEffect(() => {
     if (!props.transactions) return;
@@ -75,7 +76,7 @@ export default function BankStatement(props: {
                     onViewFile={
                       transaction.fileUrl
                         ? () => {
-                            setModalContent(transaction.fileUrl);
+                            setReceiptUrl(transaction.fileUrl);
                             setIsReceiptModalOpen(true);
                           }
                         : undefined
@@ -97,10 +98,15 @@ export default function BankStatement(props: {
       {typeof window != "undefined" &&
         isReceiptModalOpen &&
         createPortal(
-          <Modal
-            onClose={() => setIsReceiptModalOpen(false)}
-            modalContent={modalContent}
-          />,
+          <Modal onClose={() => setIsReceiptModalOpen(false)}>
+            <Image
+              src={receiptUrl}
+              alt="Comprovante da transação"
+              width={800}
+              height={800}
+              className="object-contain w-full h-full max-w-[80vw] max-h-[80vh]"
+            />
+          </Modal>,
           document.body
         )}
     </>
