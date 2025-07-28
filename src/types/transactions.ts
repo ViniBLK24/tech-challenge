@@ -3,9 +3,10 @@ export enum TransactionTypeEnum {
   TRANSFER = "transfer",
 }
 
-export interface Transaction {
+export type Transaction = {
+  id?: number;
   type: TransactionTypeEnum;
   amount: number;
   createdAt: string;
-  id?: number;
-}
+  name: string; // Novo campo
+};

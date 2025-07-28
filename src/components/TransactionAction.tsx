@@ -41,25 +41,28 @@ export default function TransactionActions({
 }: Props) {
   const { toast } = useToast();
 
+  // Adicione o campo name ao formData
   const [formData, setFormData] = useState<{
     id?: number;
     type: string;
     amount: string;
+    name: string;
   }>({
     id: undefined,
     type: transaction?.type || "",
     amount: "",
+    name: transaction?.name || "",
   });
 
   const [isEditingState, setIsEditingState] = useState(isEditing);
 
   useEffect(() => {
     if (transaction && isEditing) {
-      // If editing, populate the form with the transaction data
       setFormData({
         id: transaction.id ?? 0,
         type: transaction.type || "",
         amount: transaction.amount ? String(transaction.amount) : "",
+        name: transaction.name || "",
       });
     } else if (transaction && !isEditing) {
       handleDeleteTransaction(transaction);
@@ -85,6 +88,7 @@ export default function TransactionActions({
         setFormData({
           type: "",
           amount: "",
+          name: "",
         });
         setIsEditingState(false);
         onComplete(isEditingState);
@@ -113,12 +117,14 @@ export default function TransactionActions({
       });
     }
   }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const removedSpecialCharacters = formData.amount.replace(/\D/g, "");
 
-    if (!formData.type || !removedSpecialCharacters) {
+    // Agora o campo name é obrigatório
+    if (!formData.type || !removedSpecialCharacters || !formData.name.trim()) {
       toast({
         title: "Campos obrigatórios!",
         description: "Preencha todos os campos.",
@@ -138,6 +144,7 @@ export default function TransactionActions({
       amount: parseInt(removedSpecialCharacters),
       createdAt,
       id: formData.id,
+      name: formData.name,
     };
 
     if (!isEditingState) {
@@ -154,6 +161,7 @@ export default function TransactionActions({
           setFormData({
             type: "",
             amount: "",
+            name: "",
           });
           setIsEditingState(false);
 
@@ -192,6 +200,7 @@ export default function TransactionActions({
           setFormData({
             type: "",
             amount: "",
+            name: "",
           });
 
           onComplete(false);
@@ -222,23 +231,20 @@ export default function TransactionActions({
       }
     }
   };
+
   return (
     <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:h-[490px]">
       <BackgroundShapes y="top-0" x="right-0" />
-
       <BackgroundShapes y="bottom-0" x="left-0" />
 
       <div className="flex flex-col md:w-[60%] md:px-5 md:gap-4 lg:w-[55%]">
         <CardHeader className="flex flex-col items-center md:items-start">
           <CardTitle className="text-3xl">
-            {" "}
             {isEditingState ? "Alterar Transação" : "Nova Transação"}
           </CardTitle>
         </CardHeader>
 
         <CardContent>
-          {/* Transaction form */}
-
           <form
             onSubmit={handleSubmit}
             className="flex flex-col gap-y-8 mt-3 md:mt-0"
@@ -253,7 +259,6 @@ export default function TransactionActions({
               >
                 <SelectValue placeholder="Selecione o tipo de transação" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem
                   value={TransactionTypeEnum.TRANSFER}
@@ -261,7 +266,6 @@ export default function TransactionActions({
                 >
                   Transferência
                 </SelectItem>
-
                 <SelectItem
                   value={TransactionTypeEnum.DEPOSIT}
                   className="cursor-pointer"
@@ -271,11 +275,26 @@ export default function TransactionActions({
               </SelectContent>
             </Select>
 
+            {/* Campo para o nome da transação */}
+            <div className="flex flex-col gap-y-3">
+              <Label htmlFor="nome" className="">
+                Nome
+              </Label>
+              <Input
+                id="nome"
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                className="w-[100%]"
+                placeholder="Digite o nome da transação"
+                required
+              />
+            </div>
+
             <div className="flex flex-col gap-y-3">
               <Label htmlFor="valor" className="">
                 Valor
               </Label>
-
               <Input
                 id="valor"
                 type="text"
@@ -292,7 +311,6 @@ export default function TransactionActions({
               type="submit"
               className={cn(
                 buttonVariants({ size: "lg" }),
-
                 "bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
               )}
             >
@@ -308,7 +326,7 @@ export default function TransactionActions({
             height={300}
             width={300}
             className="z-0 pointer-events-none -mb-5 md:hidden"
-          ></Image>
+          />
         </CardContent>
       </div>
 
@@ -318,7 +336,7 @@ export default function TransactionActions({
           alt="Ilustração de uma mulher segurando um cartão de crédito"
           fill
           className="z-0 pointer-events-none"
-        ></Image>
+        />
       </div>
     </Card>
   );
