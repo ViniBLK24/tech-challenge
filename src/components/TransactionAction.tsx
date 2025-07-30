@@ -387,10 +387,12 @@ export default function TransactionActions({
                 </div>
               ) : (
                 <div className="relative">
-                  <img
+                  <Image
                     src={uploadedImageUrl}
                     alt="Preview"
                     className="object-contain w-full h-10 rounded"
+                    width={800}
+                    height={800}
                   />
                   <button
                     type="button"
