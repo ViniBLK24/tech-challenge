@@ -11,6 +11,8 @@ import Pagination from "@/components/transactions/Pagination";
 import SideMenu from "@/components/SideMenu";
 import TabletMenu from "@/components/TabletMenu";
 import TransactionActions from "@/components/TransactionAction";
+import Modal from "@/components/ui/Modal";
+import { createPortal } from "react-dom";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -66,6 +68,10 @@ export default function TransactionsPage() {
       setFilteredTransactions(res.transactions);
     });
   }, []);
+
+  function handleCancelEditing(cancel: boolean) {
+    setIsModalOpen(cancel);
+  }
 
   useEffect(() => {
     let result = transactions;
@@ -148,24 +154,21 @@ export default function TransactionsPage() {
         </div>
       </div>
       <div className="flex flex-col min-h-screen">
-        {isModalOpen && (
-          <div
-            className="fixed inset-0 z-50 top-0 flex items-center justify-center bg-black bg-opacity-60"
-            onClick={() => setIsModalOpen(false)}
-          >
-            <div
-              className="bg-white rounded-lg p-8 m-4 lg:m-20 w-full relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <TransactionActions
-                onComplete={handleDataFromChild}
-                isEditing={true}
-                transaction={transaction}
-                transactions={transactions}
-              ></TransactionActions>
-            </div>
-          </div>
-        )}
+        {isModalOpen &&
+          createPortal(
+            <Modal onClose={() => setIsModalOpen(false)}>
+              <div className="lg:w-[60%]">
+                <TransactionActions
+                  onComplete={handleDataFromChild}
+                  isEditing={true}
+                  transaction={transaction}
+                  transactions={transactions}
+                  onCancelEditing={handleCancelEditing}
+                ></TransactionActions>
+              </div>
+            </Modal>,
+            document.body
+          )}
       </div>
     </div>
   );
