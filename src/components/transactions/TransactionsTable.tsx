@@ -5,6 +5,9 @@ import { Transaction, TransactionTypeEnum } from "@/types/transactions";
 import { Eye, EyeClosed, Loader2Icon } from "lucide-react";
 import ActionButton from "../ui/ActionButton";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import Modal from "../ui/Modal";
+import Image from "next/image";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -19,6 +22,9 @@ export default function TransactionsTable({
 }: TransactionsTableProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState("");
+  const [modalContent, setModalContent] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -93,8 +99,16 @@ export default function TransactionsTable({
                 <td className="px-6 py-4 text-muted-foreground">
                   {formatDate(transaction.createdAt)}
                 </td>
-                <td className="px-6 py-4 text-muted-foreground">
+                <td className="px-6 py-4 text-muted-foreground flex align-end">
                   <ActionButton
+                    onViewFile={
+                      transaction.fileUrl
+                        ? () => {
+                            setReceiptUrl(transaction.fileUrl);
+                            setIsReceiptModalOpen(true);
+                          }
+                        : undefined
+                    }
                     onEdit={() => onTransactionSelect(transaction, true)}
                     onDelete={() => onTransactionSelect(transaction, false)}
                   />
@@ -111,6 +125,20 @@ export default function TransactionsTable({
           )}
         </tbody>
       </table>
+      {typeof window != "undefined" &&
+        isReceiptModalOpen &&
+        createPortal(
+          <Modal onClose={() => setIsReceiptModalOpen(false)}>
+            <Image
+              src={receiptUrl}
+              alt="Comprovante da transação"
+              width={800}
+              height={800}
+              className="object-contain w-full h-full max-w-[80vw] max-h-[80vh]"
+            />
+          </Modal>,
+          document.body
+        )}
     </Card>
   );
 }

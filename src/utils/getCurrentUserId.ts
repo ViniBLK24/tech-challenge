@@ -1,9 +1,9 @@
-export default function getCurrentUser(): string{
+export default function getCurrentUserId(): string{
     const storedUser = localStorage.getItem('currentUser');
 
     if(storedUser){
         const user = JSON.parse(storedUser);
-        return user.userName;
+        return user.id;
     } else {
         return "";
     }

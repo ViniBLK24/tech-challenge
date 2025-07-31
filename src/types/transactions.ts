@@ -8,4 +8,6 @@ export interface Transaction {
   amount: number;
   createdAt: string;
   id?: number;
+  userId?: number;
+  fileUrl?: string;
 }

@@ -26,18 +26,22 @@ import { useToast } from "@/hooks/use-toast";
 import { ErrorCodeEnum } from "@/types/apiErrors";
 import { ERROR_CODES } from "@/constants/errors";
 import { currencyFormatter } from "@/utils/currencyFormatter";
+import { X, CloudUpload, MoveLeft } from "lucide-react";
+import { useDropzone } from "react-dropzone";
 
 type Props = {
   transaction?: Transaction | null;
   isEditing?: boolean;
   onComplete: (isEditing: boolean) => void;
   transactions?: Transaction[];
+  onCancelEditing?: (cancel: boolean) => void;
 };
 
 export default function TransactionActions({
   transaction = null,
   isEditing = false,
   onComplete,
+  onCancelEditing,
 }: Props) {
   const { toast } = useToast();
 
@@ -45,26 +49,61 @@ export default function TransactionActions({
     id?: number;
     type: string;
     amount: string;
+    fileUrl: string;
   }>({
     id: undefined,
     type: transaction?.type || "",
     amount: "",
+    fileUrl: "",
   });
 
-  const [isEditingState, setIsEditingState] = useState(isEditing);
+  const [file, setFile] = useState(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [shouldRemoveFile, setShouldRemoveFile] = useState(false);
+
+  // Dropzone logic
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [], "application/pdf": [] },
+    onDrop: (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        setFile(file);
+        const previewUrl = URL.createObjectURL(file);
+        setUploadedImageUrl(previewUrl);
+      }
+    },
+  });
 
   useEffect(() => {
+    console.log({ transaction, isEditing });
     if (transaction && isEditing) {
       // If editing, populate the form with the transaction data
       setFormData({
         id: transaction.id ?? 0,
         type: transaction.type || "",
         amount: transaction.amount ? String(transaction.amount) : "",
+        fileUrl: transaction.fileUrl || "",
       });
+      if (transaction.fileUrl) {
+        setUploadedImageUrl(transaction.fileUrl);
+      }
     } else if (transaction && !isEditing) {
       handleDeleteTransaction(transaction);
     }
   }, [transaction]);
+
+  function resetForm() {
+    setFormData({
+      id: undefined,
+      type: "",
+      amount: "",
+      fileUrl: "",
+    });
+
+    setFile(null);
+    setUploadedImageUrl(null);
+    setShouldRemoveFile(false);
+  }
 
   function handleChange(field: string, value: string): void {
     if (field === "amount") {
@@ -85,9 +124,10 @@ export default function TransactionActions({
         setFormData({
           type: "",
           amount: "",
+          fileUrl: "",
         });
-        setIsEditingState(false);
-        onComplete(isEditingState);
+
+        onComplete(false);
         toast({
           title: "Sucesso!",
           description: "Transação concluída.",
@@ -107,17 +147,20 @@ export default function TransactionActions({
       console.log(err);
       toast({
         title: "Algo deu errado.",
-        description: "Falha na operação.",
+        description: "Falha na operação de deletar.",
         variant: "destructive",
         duration: 4000,
       });
     }
   }
+
+  // Submit logic
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const removedSpecialCharacters = formData.amount.replace(/\D/g, "");
 
+    // Checa se os campos estão vazios
     if (!formData.type || !removedSpecialCharacters) {
       toast({
         title: "Campos obrigatórios!",
@@ -128,36 +171,48 @@ export default function TransactionActions({
       return;
     }
 
-    const createdAt =
-      isEditingState && transaction
-        ? transaction.createdAt
-        : new Date().toISOString();
-
     const transactionData: Transaction = {
       type: formData.type as TransactionTypeEnum,
       amount: parseInt(removedSpecialCharacters),
-      createdAt,
-      id: formData.id,
+      createdAt: transaction?.createdAt || new Date().toISOString(),
+      fileUrl: "", // Backend will handle this
+      id: isEditing && transaction?.id ? transaction.id : undefined,
     };
 
-    if (!isEditingState) {
-      handleCreateTransaction(transactionData);
-    } else {
-      handleEditTransaction(transactionData);
+    try {
+      if (isEditing) {
+        await handleEditTransaction(transactionData, shouldRemoveFile, file);
+      } else {
+        await handleCreateTransaction(transactionData, file);
+      }
+    } catch (err) {
+      console.log(err);
+      toast({
+        title: "Algo deu errado.",
+        description: "Falha na operação.",
+        variant: "destructive",
+        duration: 4000,
+      });
     }
 
-    async function handleCreateTransaction(transactionData: Transaction) {
+    // Function to create transaction
+    async function handleCreateTransaction(
+      transactionData: Transaction,
+      file?: File
+    ) {
       try {
-        const response = await createTransaction(transactionData);
+        const response = await createTransaction(transactionData, file);
 
         if (response.transactions) {
           setFormData({
             type: "",
             amount: "",
+            fileUrl: "",
           });
-          setIsEditingState(false);
+          setFile(null);
+          setUploadedImageUrl(null);
+          onComplete(false);
 
-          onComplete(isEditingState);
           toast({
             title: "Sucesso!",
             description: "Transação concluída.",
@@ -177,25 +232,37 @@ export default function TransactionActions({
         console.log(err);
         toast({
           title: "Algo deu errado.",
-          description: "Falha na operação.",
+          description: "Falha na criação de transferência.",
           variant: "destructive",
           duration: 4000,
         });
       }
     }
 
-    async function handleEditTransaction(transactionData: Transaction) {
+    // Function to edit transaction
+    async function handleEditTransaction(
+      transactionData: Transaction,
+      shouldRemoveFile: boolean,
+      file?: File
+    ) {
       try {
-        const response = await editTransaction(transactionData);
+        const response = await editTransaction(
+          transactionData,
+          shouldRemoveFile,
+          file
+        );
 
         if (response.transactions) {
           setFormData({
             type: "",
             amount: "",
+            fileUrl: "",
           });
-
+          setFile(null);
+          setUploadedImageUrl(null);
+          setShouldRemoveFile(false);
           onComplete(false);
-          setIsEditingState(false);
+
           toast({
             title: "Sucesso!",
             description: "Transação concluída.",
@@ -215,15 +282,16 @@ export default function TransactionActions({
         console.log(err);
         toast({
           title: "Algo deu errado.",
-          description: "Falha na operação.",
+          description: "Falha na operação de editar.",
           variant: "destructive",
           duration: 4000,
         });
       }
     }
   };
+
   return (
-    <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:h-[490px]">
+    <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:pb-2 md:min-w-[650px] lg:min-w-[800px]">
       <BackgroundShapes y="top-0" x="right-0" />
 
       <BackgroundShapes y="bottom-0" x="left-0" />
@@ -232,7 +300,7 @@ export default function TransactionActions({
         <CardHeader className="flex flex-col items-center md:items-start">
           <CardTitle className="text-3xl">
             {" "}
-            {isEditingState ? "Alterar Transação" : "Nova Transação"}
+            {isEditing ? "Alterar Transação" : "Nova Transação"}
           </CardTitle>
         </CardHeader>
 
@@ -288,16 +356,83 @@ export default function TransactionActions({
               />
             </div>
 
+            <div
+              {...getRootProps()}
+              className={cn(
+                "relative border border-dashed rounded p-4 text-center transition-colors cursor-pointer",
+                isDragActive
+                  ? "border-secondary bg-gray-100"
+                  : "border-gray-500 hover:bg-gray-200"
+              )}
+            >
+              {!uploadedImageUrl ? (
+                <div className="flex flex-col items-center">
+                  <input {...getInputProps()} />
+                  <CloudUpload size={30} />
+                  <p className="text-black mt-2 text-sm">
+                    {isDragActive ? (
+                      "Solte a imagem aqui..."
+                    ) : (
+                      <>
+                        <span className="font-semibold underline">Arraste</span>{" "}
+                        ou{" "}
+                        <span className="font-semibold underline">clique</span>{" "}
+                        para selecionar arquivo
+                      </>
+                    )}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Formatos: JPG, PNG ou PDF até 1MB.
+                  </p>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Image
+                    src={uploadedImageUrl}
+                    alt="Preview"
+                    className="object-contain w-full h-10 rounded"
+                    width={800}
+                    height={800}
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the dropzone
+                      setUploadedImageUrl(null);
+                      setFile(null);
+                      setShouldRemoveFile(true); // Tells the backend if file is being delete when editing transaction
+                    }}
+                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow transition duration-200 hover:bg-black hover:text-white"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+
             <Button
               type="submit"
               className={cn(
                 buttonVariants({ size: "lg" }),
 
-                "bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
+                "z-40 bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
               )}
             >
-              {isEditingState ? "Salvar alterações" : "Concluir transação"}
+              {isEditing ? "Salvar alterações" : "Concluir transação"}
             </Button>
+            {isEditing && (
+              <Button
+                type="button"
+                className="-mt-4 bg-transparent border-none shadow-none text-red-600 p-0 w-auto h-auto self-start hover:underline"
+                onClick={() => {
+                  resetForm();
+                  onCancelEditing?.(false);
+                }}
+              >
+                <MoveLeft />
+                Cancelar edição
+              </Button>
+            )}
 
             <Toaster />
           </form>
