@@ -157,13 +157,15 @@ export default function TransactionsPage() {
         {isModalOpen &&
           createPortal(
             <Modal onClose={() => setIsModalOpen(false)}>
-              <TransactionActions
-                onComplete={handleDataFromChild}
-                isEditing={true}
-                transaction={transaction}
-                transactions={transactions}
-                onCancelEditing={handleCancelEditing}
-              ></TransactionActions>
+              <div className="md:min-w-[600px] lg:min-w-[700px]">
+                <TransactionActions
+                  onComplete={handleDataFromChild}
+                  isEditing={true}
+                  transaction={transaction}
+                  transactions={transactions}
+                  onCancelEditing={handleCancelEditing}
+                ></TransactionActions>
+              </div>
             </Modal>,
             document.body
           )}

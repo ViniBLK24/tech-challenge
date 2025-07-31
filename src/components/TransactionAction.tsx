@@ -291,7 +291,7 @@ export default function TransactionActions({
   };
 
   return (
-    <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:pb-2 md:min-w-[650px] lg:min-w-[800px]">
+    <Card className="bg-[#F5F5F5] relative pt-5 pb-0 md:pb-2 w-auto">
       <BackgroundShapes y="top-0" x="right-0" />
 
       <BackgroundShapes y="bottom-0" x="left-0" />
