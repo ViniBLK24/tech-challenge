@@ -40,17 +40,14 @@ export default function Modal({ onClose, children }: ModalProp) {
         onClick={closeAnimation}
       />
       <button
-        className="absolute top-5 right-5 text-white z-20"
+        className="absolute top-5 right-5 text-white bg-black rounded-full p-1 shadow z-20 "
         onClick={closeAnimation}
       >
         <X />
       </button>
 
       {/* Modal content */}
-      <div
-        className="relative z-10 max-w-[90%] max-h-[90%] bg-white rounded shadow-lg overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="pointer-events-auto z-10 max-w-[90%] flex justify-center align-center ">
         {children}
       </div>
     </div>
