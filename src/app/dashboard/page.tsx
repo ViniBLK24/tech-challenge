@@ -55,6 +55,7 @@ export default function Dashboard() {
     getTotalAmountOnLoad();
   }, [isCurrentUserRegistered]);
 
+  // Remove editing states and returns component to "Nova Transação" action
   function handleCancelEditing(cancel: boolean) {
     setIsEditing(cancel);
     setTransaction(null);
