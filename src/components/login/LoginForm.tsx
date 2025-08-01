@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { loginUser } from "@/utils/usersApi";
 import setCurrentUser from "@/utils/setCurrentUser";
 
-export default function LoginForm() {
+type Props = {
+  onSuccess?: () => void;
+};
+
+export default function LoginForm({ onSuccess }: Props) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [inputEmail, setInputEmail] = useState("");
@@ -21,6 +25,7 @@ export default function LoginForm() {
       const safeUser = { id, userName, email };
 
       setCurrentUser(safeUser);
+      onSuccess?.();
       router.push("/dashboard");
     } catch (err) {
       if (err instanceof Error) {

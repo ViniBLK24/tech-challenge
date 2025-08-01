@@ -1,4 +1,4 @@
-import { ErrorCodeEnum } from "@/types/apiErrors";
+ import { ErrorCodeEnum } from "@/types/apiErrors";
 import { Transaction, TransactionTypeEnum } from "@/types/transactions";
 import { readDb, writeDb } from "@/utils/db";
 import getTotalBalance from "@/utils/getTotalBalance";
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
     id: transactionId,
     createdAt: new Date().toISOString(),
     userId,
-    type,
+    type: type as TransactionTypeEnum,
     amount,
     fileUrl,
   };
@@ -237,10 +237,9 @@ export async function PUT(req: NextRequest) {
     // Atualizar a transação mantendo dados originais como createdAt
     result.transactions[transactionIndex] = {
       ...originalTransaction,
-      type,
+      type: type as TransactionTypeEnum,
       amount,
       fileUrl,
-      updatedAt: new Date().toISOString(),
     };
 
     // Salvar arquivo atualizado

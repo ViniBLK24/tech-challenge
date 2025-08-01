@@ -76,7 +76,7 @@ export default function BankStatement(props: {
                     onViewFile={
                       transaction.fileUrl
                         ? () => {
-                            setReceiptUrl(transaction.fileUrl);
+                            setReceiptUrl(transaction.fileUrl!);
                             setIsReceiptModalOpen(true);
                           }
                         : undefined

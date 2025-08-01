@@ -57,7 +57,7 @@ export default function TransactionActions({
     fileUrl: "",
   });
 
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [shouldRemoveFile, setShouldRemoveFile] = useState(false);
 
@@ -181,9 +181,9 @@ export default function TransactionActions({
 
     try {
       if (isEditing) {
-        await handleEditTransaction(transactionData, shouldRemoveFile, file);
+        await handleEditTransaction(transactionData, shouldRemoveFile, file ?? undefined);
       } else {
-        await handleCreateTransaction(transactionData, file);
+        await handleCreateTransaction(transactionData, file ?? undefined);
       }
     } catch (err) {
       console.log(err);

@@ -6,7 +6,11 @@ import { User } from "@/types/user";
 import { createUser } from "@/utils/usersApi";
 import setCurrentUser from "@/utils/setCurrentUser";
 
-export default function RegisterForm() {
+type Props = {
+  onSuccess?: () => void;
+};
+
+export default function RegisterForm({ onSuccess }: Props) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [inputName, setInputName] = useState("");
@@ -28,6 +32,7 @@ export default function RegisterForm() {
       const { userName, email, id } = response.user;
       const safeUser = { id, userName, email };
       setCurrentUser(safeUser);
+      onSuccess?.();
       router.push("/dashboard");
     } catch (err) {
       if (err instanceof Error) {
