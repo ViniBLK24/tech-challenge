@@ -24,7 +24,6 @@ export default function TransactionsTable({
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState("");
-  const [modalContent, setModalContent] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -36,7 +35,7 @@ export default function TransactionsTable({
   }, [transactions]);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-auto">
       <div className="flex items-center justify-center  text-lg w-full">
         <button
           onClick={() => setIsBalanceHidden(!isBalanceHidden)}
@@ -57,11 +56,13 @@ export default function TransactionsTable({
           <tr>
             <th className="px-6 py-3 text-left">Tipo</th>
             <th className="px-6 py-3 text-left">Valor</th>
+            <th className="px-6 py-3 text-left">Descrição</th>
+            <th className="px-6 py-3 text-left">Categoria</th>
             <th className="px-6 py-3 text-left">Data</th>
             <th className="px-6 py-3 text-left">Ações</th>
           </tr>
           <tr>
-            <th className="text-left" colSpan={4}>
+            <th className="text-left" colSpan={6}>
               <Separator className="my-0 w-full" />
             </th>
           </tr>
@@ -96,6 +97,8 @@ export default function TransactionsTable({
                     type={transaction.type}
                   />
                 </td>
+                <td className="px-6 py-4 ">{transaction.description}</td>
+                <td className="px-6 py-4 ">{transaction.category}</td>
                 <td className="px-6 py-4 text-muted-foreground">
                   {formatDate(transaction.createdAt)}
                 </td>
