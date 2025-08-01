@@ -24,7 +24,6 @@ export default function TransactionsTable({
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState("");
-  const [modalContent, setModalContent] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -104,6 +103,8 @@ export default function TransactionsTable({
                     onViewFile={
                       transaction.fileUrl
                         ? () => {
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-expect-error
                             setReceiptUrl(transaction.fileUrl);
                             setIsReceiptModalOpen(true);
                           }

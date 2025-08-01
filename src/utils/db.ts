@@ -19,6 +19,7 @@ export async function readDb(): Promise<Database> {
       users: parsed.users ?? [],
       transactions: parsed.transactions ?? [],
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     // If file doesn't exist or is malformed, return empty db
     return {

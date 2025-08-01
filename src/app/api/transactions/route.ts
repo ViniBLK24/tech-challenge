@@ -58,8 +58,6 @@ async function uploadFileToS3(buffer: Buffer, key: string, contentType: string) 
 
 // -- POST logic
 export async function POST(req: NextRequest) {
-  const contentType = req.headers.get("content-type");
-
   const result = await readDb();
   const totalBalance = getTotalBalance(result.transactions);
   const transactionId = Date.now();

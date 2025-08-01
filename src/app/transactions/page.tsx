@@ -27,7 +27,7 @@ export default function TransactionsPage() {
 
   const itemsPerPage = 10;
 
-  async function handleDataFromChild(isEditing: boolean) {
+  async function handleDataFromChild() {
     const data = await getTransactions();
     setTransactions(data.transactions);
     setFilteredTransactions(data.transactions);
