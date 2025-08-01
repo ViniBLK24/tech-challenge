@@ -153,7 +153,7 @@ export default function TransactionsPage() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col min-h-screen">
+      <div>
         {isModalOpen &&
           createPortal(
             <Modal onClose={() => setIsModalOpen(false)}>

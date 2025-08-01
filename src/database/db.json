@@ -1,6 +1,89 @@
 {
   "users": [
+    {
+      "id": 1752892266174,
+      "userName": "maria",
+      "email": "maria@maria",
+      "password": "maria"
+    }
   ],
   "transactions": [
+    {
+      "id": 1752887422930,
+      "createdAt": "2025-07-19T01:10:23.786Z",
+      "userId": 1752887405520,
+      "type": "deposit",
+      "amount": 200,
+      "fileUrl": "https://tech-challenge-upload.s3.us-east-2.amazonaws.com/1752887422930"
+    },
+    {
+      "id": 1752887758586,
+      "createdAt": "2025-07-19T01:15:58.593Z",
+      "userId": 1752887405520,
+      "type": "deposit",
+      "amount": 200,
+      "fileUrl": ""
+    },
+    {
+      "id": 1752887971379,
+      "createdAt": "2025-07-19T01:19:31.381Z",
+      "userId": 1752887405520,
+      "type": "deposit",
+      "amount": 200,
+      "fileUrl": ""
+    },
+    {
+      "id": 1752888082856,
+      "createdAt": "2025-07-19T01:21:22.857Z",
+      "userId": 1752887405520,
+      "type": "deposit",
+      "amount": 200,
+      "fileUrl": ""
+    },
+    {
+      "id": 1753060376547,
+      "createdAt": "2025-07-21T01:12:56.548Z",
+      "userId": 1752892266174,
+      "type": "deposit",
+      "amount": 1500,
+      "fileUrl": ""
+    },
+    {
+      "id": 1753146460455,
+      "createdAt": "2025-07-22T01:07:41.259Z",
+      "userId": 1752892266174,
+      "type": "deposit",
+      "amount": 2000,
+      "fileUrl": "https://tech-challenge-upload.s3.us-east-2.amazonaws.com/1753146460455"
+    },
+    {
+      "id": 1753147776750,
+      "createdAt": "2025-07-22T01:29:37.986Z",
+      "userId": 1752892266174,
+      "type": "deposit",
+      "amount": 300,
+      "fileUrl": "https://tech-challenge-upload.s3.us-east-2.amazonaws.com/1753147776750"
+    },
+    {
+      "id": 1754057298182,
+      "createdAt": "2025-08-01T14:08:24.680Z",
+      "userId": 1752892266174,
+      "type": "deposit",
+      "amount": 4000,
+      "fileUrl": "",
+      "description": "Uber",
+      "category": "Transporte",
+      "updatedAt": "2025-08-01T14:09:23.650Z"
+    },
+    {
+      "id": 1754079023147,
+      "createdAt": "2025-08-01T20:10:23.151Z",
+      "userId": 1752892266174,
+      "type": "deposit",
+      "amount": 500,
+      "fileUrl": "",
+      "description": "Metrô",
+      "category": "Transportes"
+    }
   ]
 }

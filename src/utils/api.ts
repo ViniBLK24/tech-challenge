@@ -15,6 +15,14 @@ export async function createTransaction(transaction: Transaction, file?: File) {
     formData.append("file", file);
   }
 
+  //Dynamically append optional fields
+  (["description", "category"] as const).forEach((key) => {
+    const value = transaction[key];
+    if (value) {
+      formData.append(key, value.toString());
+    }
+  });
+
   const response = await fetch("/api/transactions", {
     method: "POST",
     body: formData,
@@ -40,6 +48,14 @@ export async function editTransaction(transaction: Transaction, removeFile: bool
   if (file) {
     formData.append("file", file);
   }
+
+  // Dynamically append optional fields
+  (["description", "category"] as const).forEach((key) => {
+    const value = transaction[key];
+    if (value) {
+      formData.append(key, value.toString());
+    }
+  });
 
   const response = await fetch(`/api/transactions?id=${transaction.id}`, {
     method: "PUT",

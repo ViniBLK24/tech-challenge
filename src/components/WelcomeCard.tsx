@@ -10,9 +10,8 @@ import {
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import BackgroundShapes from "@/components/ui/BackgroundShapes";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { currencyFormatter } from "@/utils/currencyFormatter";
-import getCurrentUser from "@/utils/getCurrentUser";
 
 const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
@@ -30,14 +29,13 @@ const formatCurrentDate = () => {
   return capitalizeFirstLetter(formattedDate);
 };
 
-export default function WelcomeCard({ balance }: { balance: number }) {
-  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
-  const [userName, setUserName] = useState("");
+interface WelcomeCardProps {
+  balance: number;
+  userName?: string;
+}
 
-  useEffect(() => {
-    const currUser = getCurrentUser();
-    setUserName(currUser.split(" ")[0]);
-  }, []);
+export default function WelcomeCard({ balance, userName = "Usuário" }: WelcomeCardProps) {
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   function onEyeClick() {
     setIsBalanceHidden((prev) => !prev);

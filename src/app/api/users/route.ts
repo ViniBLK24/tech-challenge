@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readDb, writeDb } from "@/utils/db";
+import { RegisterResponse, BackendError } from "@/types/auth";
+
+const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 export async function POST(req: NextRequest) {
   const { userName, email, password } = await req.json();
@@ -11,40 +13,43 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const db = await readDb();
+  try {
+    // Call backend API
+    const response = await fetch(`${BACKEND_API_URL}/user`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: userName,
+        email,
+        password,
+      }),
+    });
 
-  const existingUser = db.users.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase()
-  );
+    const data = await response.json();
 
-  if (existingUser) {
+    if (!response.ok) {
+      const error = data as BackendError;
+      return NextResponse.json(
+        { error: error.message || error.error || "Erro ao criar usuário." },
+        { status: response.status }
+      );
+    }
+
+    const registerData = data as RegisterResponse;
+
+    return NextResponse.json({
+      message: "Usuário cadastrado com sucesso.",
+      user: {
+        id: registerData.result.id,
+        userName: registerData.result.username,
+        email: registerData.result.email,
+      },
+    });
+  } catch (error) {
+    console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Usuário já cadastrado." },
-      { status: 409 }
+      { error: "Erro interno do servidor." },
+      { status: 500 }
     );
   }
-
-  const newUser = {
-    id: Date.now(),
-    userName,
-    email,
-    password,
-  };
-
-  db.users.push(newUser);
-  await writeDb(db);
-
-  return NextResponse.json({
-    message: "Usuário cadastrado com sucesso.",
-    user: newUser,
-  });
-}
-
-// List all users
-export async function GET() {
-  const db = await readDb();
-
-  return NextResponse.json({
-    users: db.users,
-  });
 }

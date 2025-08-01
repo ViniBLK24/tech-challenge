@@ -10,9 +10,7 @@ import { getTransactions } from "@/utils/api";
 import getTotalBalance from "@/utils/getTotalBalance";
 import BankStatement from "@/components/BankStatement";
 import { Transaction } from "@/types/transactions";
-import getCurrentUserId from "@/utils/getCurrentUserId";
 import { useRouter } from "next/navigation";
-import { getUsers } from "@/utils/usersApi";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -20,40 +18,48 @@ export default function Dashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [transaction, setTransaction] = useState(null as Transaction | null);
   const [transactions, setTransactions] = useState([] as Transaction[]);
-  const [isCurrentUserRegistered, setIsCurrentUserRegistered] = useState(false);
-
-  // Checks if the user on localStorage matches registered users on db
+  // Fetch account data from backend
   useEffect(() => {
-    async function checkUserInDb() {
+    async function fetchAccountData() {
       try {
-        const currentUserId = getCurrentUserId();
-        const data = await getUsers();
-        const allUsers = data.users;
+        const response = await fetch("/api/account");
+        const data = await response.json();
 
-        const found = allUsers.some((user: any) => user.id === currentUserId);
-
-        if (!found) {
-          // Redirect if user ID is not found
+        if (!response.ok) {
+          console.error("Error fetching account data:", data.error);
           router.push("/");
+          return;
         }
 
-        setIsCurrentUserRegistered(true);
+        // Use backend transactions if available
+        if (data.result && data.result.transactions && Array.isArray(data.result.transactions)) {
+          setTransactions(data.result.transactions);
+          setTotalBalance(getTotalBalance(data.result.transactions));
+        } else {
+          // If backend doesn't have transactions, set empty state
+          // (Don't call local API since we're using backend authentication)
+          console.log("No transactions found in backend account data");
+          setTransactions([]);
+          setTotalBalance(0);
+        }
       } catch (error) {
-        console.error("Erro ao verificar usuário:", error);
+        console.error("Erro ao buscar dados da conta:", error);
+        router.push("/");
       }
     }
-    checkUserInDb();
-  }, []);
+    fetchAccountData();
+  }, [router]);
 
-  // Check total amount in account
-  useEffect(() => {
-    async function getTotalAmountOnLoad() {
-      const data = await getTransactions();
-      setTransactions(data.transactions);
-      setTotalBalance(getTotalBalance(data.transactions));
+  // Logout function
+  async function handleLogout() {
+    try {
+      await fetch("/api/users/logout", { method: "POST" });
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      router.push("/");
     }
-    getTotalAmountOnLoad();
-  }, [isCurrentUserRegistered]);
+  }
 
   // Remove editing states and returns component to "Nova Transação" action
   function handleCancelEditing(cancel: boolean) {
@@ -77,7 +83,7 @@ export default function Dashboard() {
 
   return (
     <div className="w-[100%]">
-      <DashboardMenu />
+      <DashboardMenu onLogout={handleLogout} />
       <div className="lg: flex justify-center w-[100%]">
         <div className="flex flex-col gap-4 p-6 md:p-12 lg:grid grid-cols-7 w-[100%] max-w-[1600px]">
           <div className="hidden md:block">
