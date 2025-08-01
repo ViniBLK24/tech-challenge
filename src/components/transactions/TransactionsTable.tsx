@@ -107,8 +107,6 @@ export default function TransactionsTable({
                     onViewFile={
                       transaction.fileUrl
                         ? () => {
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-expect-error
                             setReceiptUrl(transaction.fileUrl);
                             setIsReceiptModalOpen(true);
                           }
