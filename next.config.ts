@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: 'standalone',
   images: {
     domains: ["tech-challenge-upload.s3.us-east-2.amazonaws.com"],
   },
