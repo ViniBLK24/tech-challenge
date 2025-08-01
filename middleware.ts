@@ -23,11 +23,14 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  // If user is authenticated and trying to access login/register pages, redirect to dashboard
-  if ((pathname === '/' || pathname === '/register') && request.cookies.get('auth-token')) {
+  // If user is authenticated and trying to access login page, redirect to dashboard
+  if (pathname === '/' && request.cookies.get('auth-token')) {
     const dashboardUrl = new URL('/dashboard', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
+  
+  // Allow access to register page even if authenticated (user might want to create another account)
+  // The register page will handle its own logic
   
   return NextResponse.next();
 }

@@ -24,15 +24,9 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
 
   useEffect(() => {
     const fetchAccountData = async () => {
-      try {
         const accountData = await getAccountData();
         setUserName(accountData.username);
-      } catch (error) {
-        console.error("Error fetching account data:", error);
-        // Keep default "Usuário" if fetch fails
-      }
     };
-
     fetchAccountData();
   }, []);
 
@@ -61,7 +55,7 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
           >
             <Menu className="text-primary" />
           </MenubarTrigger>
-          <MenubarContent className="max-w-[70%] -right-12 fixed">
+          <MenubarContent className="max-w-[70%] -right-12 fixed z-[9999]">
             <MenubarItem className="flex gap-x-3 bg-gray-200">
               <Avatar className="border-[2.5px] border-black w-6 h-6">
                 <AvatarImage src="" alt="User photo" />
@@ -82,7 +76,12 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
             <MenubarSeparator />
             <MenubarItem>Outros serviços</MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={onLogout} className="text-red-600 cursor-pointer">
+            <MenubarItem 
+              onClick={() => {
+                if (onLogout) onLogout();
+              }}
+              className="text-red-600 cursor-pointer hover:bg-red-50 active:bg-red-100"
+            >
               Sair
             </MenubarItem>
           </MenubarContent>
@@ -111,8 +110,11 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
             </AvatarFallback>
           </Avatar>
           <button
-            onClick={onLogout}
-            className="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+            onClick={() => {
+              if (onLogout) onLogout();
+            }}
+            className="text-red-400 hover:text-red-300 transition-colors cursor-pointer px-3 py-1 rounded hover:bg-red-50"
+            type="button"
           >
             Sair
           </button>

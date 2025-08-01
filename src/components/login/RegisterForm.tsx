@@ -25,10 +25,29 @@ export default function RegisterForm() {
     try {
       const response = await createUser(registerUser);
 
-      const { userName, email, id } = response.user;
-      const safeUser = { id, userName, email };
+      const { username, email, id } = response.result;
+      const safeUser = { id, userName: username, email };
       setCurrentUser(safeUser);
-      router.push("/dashboard");
+      
+      // After successful registration, automatically login the user
+      try {
+        const loginResponse = await fetch("/api/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: inputEmail, password: inputPassword }),
+        });
+
+        if (loginResponse.ok) {
+          router.push("/dashboard");
+        } else {
+          // If auto-login fails, still redirect to dashboard (user can login manually)
+          router.push("/dashboard");
+        }
+      } catch (loginError) {
+        console.error("Auto-login failed:", loginError);
+        // Still redirect to dashboard
+        router.push("/dashboard");
+      }
     } catch (err) {
       if (err instanceof Error) {
         setErrorMessage(err.message);

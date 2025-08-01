@@ -27,7 +27,14 @@ export default function Dashboard() {
 
         if (!response.ok) {
           console.error("Error fetching account data:", data.error);
-          router.push("/");
+          // If authentication error, redirect to login
+          if (data.error && data.error.includes("Token de autenticação")) {
+            router.push("/");
+            return;
+          }
+          // For other errors, try to continue with empty state
+          setTransactions([]);
+          setTotalBalance(0);
           return;
         }
 
@@ -44,7 +51,14 @@ export default function Dashboard() {
         }
       } catch (error) {
         console.error("Erro ao buscar dados da conta:", error);
-        router.push("/");
+        // Only redirect on authentication errors
+        if (error instanceof Error && error.message.includes("Token de autenticação")) {
+          router.push("/");
+          return;
+        }
+        // For other errors, continue with empty state
+        setTransactions([]);
+        setTotalBalance(0);
       }
     }
     fetchAccountData();
@@ -52,8 +66,10 @@ export default function Dashboard() {
 
   // Logout function
   async function handleLogout() {
+    console.log("handleLogout function called");
     try {
       await fetch("/api/users/logout", { method: "POST" });
+      console.log("Logout API call successful");
       router.push("/");
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
