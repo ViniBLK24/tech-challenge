@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Menubar,
   MenubarContent,
@@ -12,14 +13,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 import { Menu, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import getCurrentUser from "@/utils/getCurrentUser";
+import { getAccountData } from "@/utils/usersApi";
 
-export default function DashboardMenu() {
-  const [userName, setUserName] = useState("");
+interface DashboardMenuProps {
+  onLogout?: () => void;
+}
+
+export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
+  const [userName, setUserName] = useState("Usuário");
 
   useEffect(() => {
-    setUserName(getCurrentUser());
+    const fetchAccountData = async () => {
+      try {
+        const accountData = await getAccountData();
+        setUserName(accountData.username);
+      } catch (error) {
+        console.error("Error fetching account data:", error);
+        // Keep default "Usuário" if fetch fails
+      }
+    };
+
+    fetchAccountData();
   }, []);
 
   return (
@@ -67,6 +81,10 @@ export default function DashboardMenu() {
             <MenubarItem>Investimentos</MenubarItem>
             <MenubarSeparator />
             <MenubarItem>Outros serviços</MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem onClick={onLogout} className="text-red-600 cursor-pointer">
+              Sair
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
       </div>
@@ -92,6 +110,12 @@ export default function DashboardMenu() {
               <User className="w-10 h-10 text-primary" />
             </AvatarFallback>
           </Avatar>
+          <button
+            onClick={onLogout}
+            className="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+          >
+            Sair
+          </button>
         </div>
       </div>
     </Menubar>

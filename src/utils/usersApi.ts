@@ -1,37 +1,33 @@
 import { User } from "@/types/user";
+import { RegisterResponse, BackendError } from "@/types/auth";
 
-const USER_API_URL = "/api/users";
-const LOGIN_API_URL = "/api/users/login";
+const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 // Register new user
-export async function createUser(user: User) {
-    const response = await fetch("/api/users", {
+export async function createUser(user: User): Promise<RegisterResponse> {
+  const response = await fetch(`${BACKEND_API_URL}/user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(user),
+    body: JSON.stringify({
+      username: user.userName,
+      email: user.email,
+      password: user.password,
+    }),
   });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Erro ao criar usuário.");
+    const error = data as BackendError;
+    throw new Error(error.message || error.error || "Erro ao criar usuário.");
   }
 
-  return data;
+  return data as RegisterResponse;
 }
 
-// List all users
-export async function getUsers() {
-  const response = await fetch("/api/users");
-  if (!response.ok) {
-    throw new Error("Erro ao buscar usuários");
-  }
-  return response.json();
-}
-
-// Login user
-export async function loginUser(email: string, password: string){
-    const response = await fetch(LOGIN_API_URL, {
+// Login user - now calls our internal API route that handles backend integration
+export async function loginUser(email: string, password: string): Promise<{ user: { id: string; userName: string; email: string } }> {
+  const response = await fetch("/api/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -44,4 +40,23 @@ export async function loginUser(email: string, password: string){
   }
 
   return data;
+}
+
+// Get account data
+export async function getAccountData(): Promise<{ username: string }> {
+  const response = await fetch("/api/account", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Erro ao buscar dados da conta.");
+  }
+
+  // Extract username from the account data
+  const username = data.result?.account?.[0]?.username || "Usuário";
+  
+  return { username };
 }
