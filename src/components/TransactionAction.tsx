@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/Card";
 import { Button, buttonVariants } from "./ui/Button";
 import {
   Select,
@@ -28,6 +34,7 @@ import { ERROR_CODES } from "@/constants/errors";
 import { currencyFormatter } from "@/utils/currencyFormatter";
 import { X, CloudUpload, MoveLeft } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { suggestCategory } from "@/utils/suggestCategory";
 
 type Props = {
   transaction?: Transaction | null;
@@ -49,17 +56,22 @@ export default function TransactionActions({
     id?: number;
     type: string;
     amount: string;
+    description: string;
+    category: string;
     fileUrl: string;
   }>({
     id: undefined,
     type: transaction?.type || "",
     amount: "",
+    description: "",
+    category: "",
     fileUrl: "",
   });
 
   const [file, setFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [shouldRemoveFile, setShouldRemoveFile] = useState(false);
+  const [categoryInput, setCategoryInput] = useState<string>("");
 
   // Dropzone logic
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -82,6 +94,8 @@ export default function TransactionActions({
         id: transaction.id ?? 0,
         type: transaction.type || "",
         amount: transaction.amount ? String(transaction.amount) : "",
+        description: transaction.description || "",
+        category: transaction.category || "",
         fileUrl: transaction.fileUrl || "",
       });
       if (transaction.fileUrl) {
@@ -92,11 +106,14 @@ export default function TransactionActions({
     }
   }, [transaction]);
 
+  // Resets all form elements
   function resetForm() {
     setFormData({
       id: undefined,
       type: "",
       amount: "",
+      description: "",
+      category: "",
       fileUrl: "",
     });
 
@@ -106,14 +123,25 @@ export default function TransactionActions({
   }
 
   function handleChange(field: string, value: string): void {
+    // Format amount as currency
     if (field === "amount") {
-      const amount = currencyFormatter(value + "");
-      value = amount;
+      value = currencyFormatter(value);
     }
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Suggest category based on description (not category field)
+      if (field === "description") {
+        const suggested = suggestCategory(value);
+        if (suggested) {
+          updated.category = suggested;
+          setCategoryInput(suggested);
+        }
+      }
+
+      return updated;
+    });
   }
 
   async function handleDeleteTransaction(transaction: Transaction) {
@@ -121,11 +149,7 @@ export default function TransactionActions({
       const response = await deleteTransaction(transaction);
 
       if (response.transactions) {
-        setFormData({
-          type: "",
-          amount: "",
-          fileUrl: "",
-        });
+        resetForm();
 
         onComplete(false);
         toast({
@@ -177,6 +201,8 @@ export default function TransactionActions({
       createdAt: transaction?.createdAt || new Date().toISOString(),
       fileUrl: "", // Backend will handle this
       id: isEditing && transaction?.id ? transaction.id : undefined,
+      description: formData.description || undefined,
+      category: formData.category || undefined,
     };
 
     try {
@@ -204,11 +230,7 @@ export default function TransactionActions({
         const response = await createTransaction(transactionData, file);
 
         if (response.transactions) {
-          setFormData({
-            type: "",
-            amount: "",
-            fileUrl: "",
-          });
+          resetForm();
           setFile(null);
           setUploadedImageUrl(null);
           onComplete(false);
@@ -253,11 +275,7 @@ export default function TransactionActions({
         );
 
         if (response.transactions) {
-          setFormData({
-            type: "",
-            amount: "",
-            fileUrl: "",
-          });
+          resetForm();
           setFile(null);
           setUploadedImageUrl(null);
           setShouldRemoveFile(false);
@@ -296,12 +314,15 @@ export default function TransactionActions({
 
       <BackgroundShapes y="bottom-0" x="left-0" />
 
-      <div className="flex flex-col md:w-[60%] md:px-5 md:gap-4 lg:w-[55%]">
+      <div className="flex flex-col md:w-[100%] md:px-5 md:gap-4">
         <CardHeader className="flex flex-col items-center md:items-start">
           <CardTitle className="text-3xl">
             {" "}
             {isEditing ? "Alterar Transação" : "Nova Transação"}
           </CardTitle>
+          <CardDescription>
+            <span className="text-destructive">*</span> Itens obrigatórios
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -311,128 +332,167 @@ export default function TransactionActions({
             onSubmit={handleSubmit}
             className="flex flex-col gap-y-8 mt-3 md:mt-0"
           >
-            <Select
-              value={formData.type}
-              onValueChange={(value) => handleChange("type", value)}
-            >
-              <SelectTrigger
-                value={formData.type}
-                className="w-[100%] z-1 cursor-pointer"
-              >
-                <SelectValue placeholder="Selecione o tipo de transação" />
-              </SelectTrigger>
+            <div className="flex flex-col gap-8 md:grid md:grid-cols-2 md:gap-8 md:items-end">
+              <div className="flex flex-col gap-y-3">
+                <Label htmlFor="valor" className="">
+                  Tipo de transação <span className="text-destructive">*</span>
+                </Label>
 
-              <SelectContent>
-                <SelectItem
-                  value={TransactionTypeEnum.TRANSFER}
-                  className="cursor-pointer"
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => handleChange("type", value)}
                 >
-                  Transferência
-                </SelectItem>
-
-                <SelectItem
-                  value={TransactionTypeEnum.DEPOSIT}
-                  className="cursor-pointer"
-                >
-                  Depósito
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="flex flex-col gap-y-3">
-              <Label htmlFor="valor" className="">
-                Valor
-              </Label>
-
-              <Input
-                id="valor"
-                type="text"
-                min="0"
-                step="0.01"
-                value={currencyFormatter(formData.amount)}
-                onChange={(e) => handleChange("amount", e.target.value)}
-                className="w-[50%] md:w-[100%]"
-                placeholder="00,00"
-              />
-            </div>
-
-            <div
-              {...getRootProps()}
-              className={cn(
-                "relative border border-dashed rounded p-4 text-center transition-colors cursor-pointer",
-                isDragActive
-                  ? "border-secondary bg-gray-100"
-                  : "border-gray-500 hover:bg-gray-200"
-              )}
-            >
-              {!uploadedImageUrl ? (
-                <div className="flex flex-col items-center">
-                  <input {...getInputProps()} />
-                  <CloudUpload size={30} />
-                  <p className="text-black mt-2 text-sm">
-                    {isDragActive ? (
-                      "Solte a imagem aqui..."
-                    ) : (
-                      <>
-                        <span className="font-semibold underline">Arraste</span>{" "}
-                        ou{" "}
-                        <span className="font-semibold underline">clique</span>{" "}
-                        para selecionar arquivo
-                      </>
-                    )}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    Formatos: JPG, PNG ou PDF até 1MB.
-                  </p>
-                </div>
-              ) : (
-                <div className="relative">
-                  <Image
-                    src={uploadedImageUrl}
-                    alt="Preview"
-                    className="object-contain w-full h-10 rounded"
-                    width={800}
-                    height={800}
-                  />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering the dropzone
-                      setUploadedImageUrl(null);
-                      setFile(null);
-                      setShouldRemoveFile(true); // Tells the backend if file is being delete when editing transaction
-                    }}
-                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow transition duration-200 hover:bg-black hover:text-white"
+                  <SelectTrigger
+                    value={formData.type}
+                    className="w-[100%] z-1 cursor-pointer"
                   >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
+                    <SelectValue placeholder="Selecione o tipo de transação" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem
+                      value={TransactionTypeEnum.TRANSFER}
+                      className="cursor-pointer"
+                    >
+                      Transferência
+                    </SelectItem>
+
+                    <SelectItem
+                      value={TransactionTypeEnum.DEPOSIT}
+                      className="cursor-pointer"
+                    >
+                      Depósito
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-y-3">
+                <Label htmlFor="valor" className="">
+                  Valor <span className="text-destructive">*</span>
+                </Label>
+
+                <Input
+                  id="valor"
+                  type="text"
+                  min="0"
+                  step="0.01"
+                  value={currencyFormatter(formData.amount)}
+                  onChange={(e) => handleChange("amount", e.target.value)}
+                  className="w-[50%] md:w-[100%]"
+                  placeholder="00,00"
+                />
+              </div>
+
+              <div className="flex flex-col gap-y-3 w-[100%]">
+                <Label htmlFor="categoria">Descrição</Label>
+                <Input
+                  id="categoria"
+                  type="text"
+                  className=""
+                  maxLength={30}
+                  placeholder="Ex: Uber, Salário..."
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                ></Input>
+              </div>
+
+              <div className="flex flex-col gap-y-3 w-[100%]">
+                <Label htmlFor="categoria">Categoria</Label>
+                <Input
+                  id="categoria"
+                  type="text"
+                  maxLength={20}
+                  placeholder="Ex: Lazer, Transporte..."
+                  value={formData.category}
+                  onChange={(e) => handleChange("category", e.target.value)}
+                ></Input>
+              </div>
             </div>
 
-            <Button
-              type="submit"
-              className={cn(
-                buttonVariants({ size: "lg" }),
-
-                "z-40 bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
-              )}
-            >
-              {isEditing ? "Salvar alterações" : "Concluir transação"}
-            </Button>
-            {isEditing && (
-              <Button
-                type="button"
-                className="-mt-4 bg-transparent border-none shadow-none text-red-600 p-0 w-auto h-auto self-start hover:underline"
-                onClick={() => {
-                  resetForm();
-                  onCancelEditing?.(false);
-                }}
+            <div className="flex flex-col gap-y-8 md:w-[55%]">
+              <div
+                {...getRootProps()}
+                className={cn(
+                  "relative border border-dashed rounded p-4 text-center transition-colors cursor-pointer",
+                  isDragActive
+                    ? "border-secondary bg-gray-100"
+                    : "border-gray-500 hover:bg-gray-200"
+                )}
               >
-                <MoveLeft />
-                Cancelar edição
+                {!uploadedImageUrl ? (
+                  <div className="flex flex-col items-center">
+                    <input {...getInputProps()} />
+                    <CloudUpload size={30} />
+                    <p className="text-black mt-2 text-sm">
+                      {isDragActive ? (
+                        "Solte a imagem aqui..."
+                      ) : (
+                        <>
+                          <span className="font-semibold underline">
+                            Arraste
+                          </span>{" "}
+                          ou{" "}
+                          <span className="font-semibold underline">
+                            clique
+                          </span>{" "}
+                          para selecionar arquivo
+                        </>
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      Formatos: JPG, PNG ou PDF até 1MB.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Image
+                      src={uploadedImageUrl}
+                      alt="Preview"
+                      className="object-contain w-full h-10 rounded"
+                      width={800}
+                      height={800}
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the dropzone
+                        setUploadedImageUrl(null);
+                        setFile(null);
+                        setShouldRemoveFile(true); // Tells the backend if file is being delete when editing transaction
+                      }}
+                      className="absolute top-2 right-2 bg-white rounded-full p-1 shadow transition duration-200 hover:bg-black hover:text-white"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+
+                  "z-40 bg-black text-white w-[100%] cursor-pointer hover:text-white hover:bg-neutral-500 md:w-[70%] md:min-w-50"
+                )}
+              >
+                {isEditing ? "Salvar alterações" : "Concluir transação"}
               </Button>
-            )}
+              {isEditing && (
+                <Button
+                  type="button"
+                  className="-mt-4 bg-transparent border-none shadow-none text-red-600 p-0 w-auto h-auto self-start hover:underline"
+                  onClick={() => {
+                    resetForm();
+                    onCancelEditing?.(false);
+                  }}
+                >
+                  <MoveLeft />
+                  Cancelar edição
+                </Button>
+              )}
+            </div>
 
             <Toaster />
           </form>
@@ -442,19 +502,19 @@ export default function TransactionActions({
             alt="Ilustração de uma mulher segurando um cartão de crédito"
             height={300}
             width={300}
-            className="z-0 pointer-events-none -mb-5 md:hidden"
+            className="z-0 pointer-events-none -mb-5 md:absolute md:right-5 md:bottom-5"
           ></Image>
         </CardContent>
       </div>
 
-      <div className="hidden md:block md:absolute md:w-85 md:h-60 md:bottom-0 md:right-6 md:min-w-[50%] lg:right-10 lg:w-95 lg:h-65">
+      {/* <div className="hidden md:block md:absolute md:w-85 md:h-60 md:bottom-0 md:right-6 md:min-w-[50%] lg:right-10 lg:w-95 lg:h-65">
         <Image
           src="/ilustracao-nova-transacao.svg"
           alt="Ilustração de uma mulher segurando um cartão de crédito"
           fill
           className="z-0 pointer-events-none"
         ></Image>
-      </div>
+      </div> */}
     </Card>
   );
 }

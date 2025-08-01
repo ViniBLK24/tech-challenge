@@ -69,6 +69,8 @@ export async function POST(req: NextRequest) {
   let amount: number = 0;
   let fileUrl = "";
 
+  const optionalFields: Record<string, string> = {};
+
   // Handle multipart form-data (with file)
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
@@ -76,6 +78,15 @@ export async function POST(req: NextRequest) {
   type = formData.get("type") as string;
   amount = Number(formData.get("amount"));
   userId = Number(userIdStr);
+
+  (["description", "category"] as const).forEach((key) => {
+    const value = formData.get(key);
+    console.log(`${key}: ${value}`)
+    if (value && typeof value === "string") {
+      optionalFields[key] = value;
+    }
+  });
+
 
   if (!userId) {
     return NextResponse.json({
@@ -129,6 +140,7 @@ export async function POST(req: NextRequest) {
     type,
     amount,
     fileUrl,
+    ...optionalFields,
   };
 
   // Append the new transaction to the existing list and add date created and id
@@ -158,6 +170,16 @@ export async function PUT(req: NextRequest) {
     const amount = Number(formData.get("amount"));
     const removeFile = formData.get("removeFile") === "true";
     const file = formData.get("file") as File | null;
+
+    const optionalFields: Record<string, string> = {};
+    (["description", "category"] as const).forEach((key) => {
+      const value = formData.get(key);
+      // Checks if fields exists
+      if (value && typeof value === "string") {
+        optionalFields[key] = value;
+      }
+    });
+
 
     // Basic validations
     if (!id || !type || !amount) {
@@ -240,6 +262,7 @@ export async function PUT(req: NextRequest) {
       type,
       amount,
       fileUrl,
+      ...optionalFields,
       updatedAt: new Date().toISOString(),
     };
 
