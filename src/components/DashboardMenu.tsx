@@ -34,7 +34,7 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
     <Menubar className="sticky top-0 z-10 rounded-none bg-black border-black py-8 px-4 w-[100%] flex justify-between md:justify-center md:px-8">
       {/* Mobile hamburguer menu */}
       <div className="flex items-center justify-between h-[100%] w-[100%] pl-6 md:hidden">
-        <Link href="/">
+        <Link href="/dashboard">
           <Image
             src="/logo-green.svg"
             alt=""
@@ -90,7 +90,7 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
       {/* Tablet and Desktop menu content */}
       <div className="hidden md:flex w-[100%] max-w-[1500px] justify-between items-center">
         <div>
-          <Link href="/">
+          <Link href="/dashboard">
             <Image
               src="/logo-green.svg"
               alt=""

@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Define protected routes
+// Define protected routes (only the protected group routes)
 const protectedRoutes = ['/dashboard', '/transactions'];
+
+// Define public routes that should redirect to dashboard if user is authenticated
+const publicRoutes = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -18,20 +21,19 @@ export function middleware(request: NextRequest) {
     
     if (!token) {
       // Redirect to login page if no token
-      const loginUrl = new URL('/', request.url);
+      const loginUrl = new URL('/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
   
-  // If user is authenticated and trying to access login page, redirect to dashboard
-  if (pathname === '/' && request.cookies.get('auth-token')) {
+  // If user is authenticated and trying to access login/register pages, redirect to dashboard
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  if (isPublicRoute && request.cookies.get('auth-token')) {
     const dashboardUrl = new URL('/dashboard', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
   
-  // Allow access to register page even if authenticated (user might want to create another account)
-  // The register page will handle its own logic
-  
+  // Allow access to all other routes (home, etc.)
   return NextResponse.next();
 }
 
