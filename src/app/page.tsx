@@ -12,9 +12,10 @@ export default function Home() {
     <>
       {/* Botão de menu só no mobile */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 bg-black text-pattern-green p-2 rounded cursor-pointer"
+        className="md:hidden fixed top-4 left-4 z-50 bg-black text-pattern-green p-2 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-pattern-green"
         onClick={() => setSidebarOpen(true)}
         aria-label="Abrir menu"
+        tabIndex={0}
       >
         &#9776;
       </button>
@@ -32,8 +33,10 @@ export default function Home() {
             </button>
             <a
               href="#"
-              className="text-pattern-green text-lg font-semibold px-2 py-1 rounded w-fit hover:bg-pattern-green/20 hover:text-white transition"
+              className="text-pattern-green text-lg font-semibold px-2 py-1 rounded w-fit hover:bg-pattern-green/20 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-pattern-green"
               onClick={() => setSidebarOpen(false)}
+              tabIndex={0}
+              aria-label="Sobre"
             >
               Sobre
             </a>
@@ -47,11 +50,13 @@ export default function Home() {
             {/* Botões só no mobile */}
             <div className="flex flex-col gap-2 mt-4 md:hidden">
               <button
-                className="border border-pattern-green text-pattern-green px-3 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm"
+                className="border border-pattern-green text-pattern-green px-3 py-2 rounded hover:bg-pattern-green hover:text-black font-semibold cursor-pointer text-sm focus:outline-none focus:ring-2 focus:ring-pattern-green"
                 onClick={() => {
                   setSidebarOpen(false);
                   router.push("/dashboard");
                 }}
+                tabIndex={0}
+                aria-label="Abrir minha conta"
               >
                 Abrir minha conta
               </button>
@@ -99,7 +104,10 @@ export default function Home() {
       </header>
 
       {/* Main */}
-      <main className="flex flex-col items-center justify-center py-10 md:py-16 bg-gradient-to-b from-[#EBE8ED] to-[#FFFFFF] min-h-[60vh] w-full">
+      <main
+        className="flex flex-col items-center justify-center py-10 md:py-16 bg-gradient-to-b from-[#EBE8ED] to-[#FFFFFF] min-h-[60vh] w-full"
+        aria-live="polite"
+      >
         <div className="w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 px-4">
           <div className="flex-1 flex items-start w-full">
             <h1 className="text-xl md:text-2xl font-bold text-black mb-4 text-left w-full">

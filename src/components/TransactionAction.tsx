@@ -24,10 +24,10 @@ import { ErrorCodeEnum } from "@/types/apiErrors";
 import { ERROR_CODES } from "@/constants/errors";
 
 type Props = {
-  onSubmit: (data: []) => void;
+  onSubmitAction: (data: []) => void;
 };
 
-export default function TransactionActions({ onSubmit }: Props) {
+export default function TransactionActions({ onSubmitAction }: Props) {
   const [type, setType] = useState<TransactionTypeEnum | "">("");
   const [amount, setAmount] = useState("");
 
@@ -72,7 +72,7 @@ export default function TransactionActions({ onSubmit }: Props) {
       if (response.transactions) {
         setAmount("");
         setType("");
-        onSubmit(response.transactions);
+        onSubmitAction(response.transactions);
         toast({
           title: "Sucesso!",
           description: "Transação concluída.",
