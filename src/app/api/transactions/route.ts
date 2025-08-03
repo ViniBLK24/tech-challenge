@@ -131,11 +131,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Create transaction
-  const newTransaction = {
+  const newTransaction: Transaction = {
     id: transactionId,
     createdAt: new Date().toISOString(),
     userId,
-    type,
+    type: type as TransactionTypeEnum,
     amount,
     fileUrl,
     ...optionalFields,
@@ -257,11 +257,12 @@ export async function PUT(req: NextRequest) {
     // Atualizar a transação mantendo dados originais como createdAt
     result.transactions[transactionIndex] = {
       ...originalTransaction,
-      type,
+      type: type as TransactionTypeEnum,
       amount,
       fileUrl,
       ...optionalFields,
-      updatedAt: new Date().toISOString(),
+      // Remove updatedAt if Transaction type does not allow it
+      // updatedAt: new Date().toISOString(), // <-- Remove this line
     };
 
     // Salvar arquivo atualizado
