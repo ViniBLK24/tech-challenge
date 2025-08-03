@@ -8,7 +8,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 // API route for handling transaction data
 
 export async function GET(req: NextRequest) {
-  const userId = Number(req.nextUrl.searchParams.get("userId"));
+  const userId = String(req.nextUrl.searchParams.get("userId"));
 
   if (!userId){
     return NextResponse.json(
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const totalBalance = getTotalBalance(result.transactions);
   const transactionId = Date.now();
 
-  let userId: number = 0;
+  let userId: string = "";
   let type: string = "";
   let amount: number = 0;
   let fileUrl = "";
@@ -72,14 +72,12 @@ export async function POST(req: NextRequest) {
   // Handle multipart form-data (with file)
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
-  const userIdStr = formData.get("userId") as string;
+  userId = formData.get("userId") as string;
   type = formData.get("type") as string;
   amount = Number(formData.get("amount"));
-  userId = Number(userIdStr);
 
   (["description", "category"] as const).forEach((key) => {
     const value = formData.get(key);
-    console.log(`${key}: ${value}`)
     if (value && typeof value === "string") {
       optionalFields[key] = value;
     }

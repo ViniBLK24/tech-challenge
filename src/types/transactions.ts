@@ -8,7 +8,7 @@ export interface Transaction {
   amount: number;
   createdAt: string;
   id?: number;
-  userId?: number;
+  userId?: string;
   fileUrl?: string;
   category?: string;
   description?: string;
