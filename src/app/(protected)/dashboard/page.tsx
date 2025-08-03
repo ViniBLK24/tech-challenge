@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [transaction, setTransaction] = useState(null as Transaction | null);
   const [transactions, setTransactions] = useState([] as Transaction[]);
+  const [userName, setUserName] = useState("");
   // Fetch account data from backend
   useEffect(() => {
     async function fetchAccountData() {
@@ -46,22 +47,14 @@ export default function Dashboard() {
           setTotalBalance(0);
           return;
         }
-
-        // Use backend transactions if available
-        if (data.result && data.result.transactions && Array.isArray(data.result.transactions)) {
-          setTransactions(data.result.transactions);
-          setTotalBalance(getTotalBalance(data.result.transactions));
-        } else {
-          // If backend doesn't have transactions, set empty state
-          // (Don't call local API since we're using backend authentication)
-          console.log("No transactions found in backend account data");
-          setTransactions([]);
-          setTotalBalance(0);
-        }
+        setUserName(data.result.account[0]["username"].split(" ")[0]); // Only gets user's first name
       } catch (error) {
         console.error("Erro ao buscar dados da conta:", error);
         // Only redirect on authentication errors
-        if (error instanceof Error && error.message.includes("Token de autenticação")) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Token de autenticação")
+        ) {
           localStorage.removeItem("currentUser");
           router.push("/login");
           return;
@@ -72,6 +65,14 @@ export default function Dashboard() {
       }
     }
     fetchAccountData();
+
+    // Get total amount and transactions list
+    async function getTotalAmountOnLoad() {
+      const data = await getTransactions();
+      setTransactions(data.transactions);
+      setTotalBalance(getTotalBalance(data.transactions));
+    }
+    getTotalAmountOnLoad();
   }, [router]);
 
   // Logout function
@@ -126,7 +127,7 @@ export default function Dashboard() {
             <SideMenu />
           </div>
           <div className="flex flex-col gap-4 col-span-4">
-            <WelcomeCard balance={totalBalance} />
+            <WelcomeCard balance={totalBalance} userName={userName} />
             <TransactionActions
               onComplete={handleDataFromChild}
               isEditing={isEditing}
