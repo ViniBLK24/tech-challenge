@@ -12,6 +12,7 @@ export interface Transaction {
   fileUrl?: string;
   category?: string;
   description?: string;
+  updatedAt?: string;
 }
 
 export enum TransactionCategoryEnum {

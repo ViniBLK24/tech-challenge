@@ -260,7 +260,7 @@ export async function PUT(req: NextRequest) {
       fileUrl,
       ...optionalFields,
       // Remove updatedAt if Transaction type does not allow it
-      // updatedAt: new Date().toISOString(), // <-- Remove this line
+      updatedAt: new Date().toISOString(),
     };
 
     // Salvar arquivo atualizado
