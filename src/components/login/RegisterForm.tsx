@@ -28,7 +28,7 @@ export default function RegisterForm() {
       const { username, email, id } = response.result;
       const safeUser = { id, userName: username, email };
       setCurrentUser(safeUser);
-      
+
       // After successful registration, automatically login the user
       try {
         const loginResponse = await fetch("/api/users/login", {
@@ -60,39 +60,68 @@ export default function RegisterForm() {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <label htmlFor="name-register" className="sr-only" lang="pt-BR">
+        Nome
+      </label>
       <input
+        id="name-register"
         name="nome"
         type="text"
         placeholder="Nome inteiro"
+        aria-label="Nome"
         className="border rounded px-3 py-2 text-black"
         value={inputName}
         onChange={(e) => setInputName(e.target.value)}
         required
+        autoComplete="name"
+        aria-describedby="register-error"
       />
+      <label htmlFor="email-register" className="sr-only" lang="pt-BR">
+        E-mail
+      </label>
       <input
+        id="email-register"
         name="email"
         type="email"
         placeholder="E-mail"
+        aria-label="E-mail"
         className="border rounded px-3 py-2 text-black"
         value={inputEmail}
         onChange={(e) => setInputEmail(e.target.value)}
         required
+        autoComplete="email"
+        aria-describedby="register-error"
       />
+      <label htmlFor="password-register" className="sr-only" lang="pt-BR">
+        Senha
+      </label>
       <input
+        id="password-register"
         name="senha"
         type="password"
         placeholder="Senha"
+        aria-label="Senha"
         className="border rounded px-3 py-2 text-black"
         value={inputPassword}
         onChange={(e) => setInputPassword(e.target.value)}
         required
+        autoComplete="new-password"
+        aria-describedby="register-error"
       />
       {errorMessage && (
-        <span className="text-red-500 text-sm">{errorMessage}</span>
+        <span
+          id="register-error"
+          className="text-red-500 text-sm"
+          aria-live="assertive"
+          lang="pt-BR"
+        >
+          {errorMessage}
+        </span>
       )}
       <button
         type="submit"
         className="border border-pattern-green bg-black text-pattern-green font-semibold rounded px-4 py-2 mt-2 hover:bg-pattern-green hover:text-black transition"
+        lang="pt-BR"
       >
         Criar conta
       </button>
