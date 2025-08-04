@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import {  ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 // Componente de loading
 const LoadingComponent = () => (
@@ -22,7 +22,6 @@ const ErrorComponent = ({ error }: { error: string }) => (
   </div>
 );
 
-
 export default function InvestmentsWrapper() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -32,7 +31,7 @@ export default function InvestmentsWrapper() {
     // Verificar se o microfrontend está disponível
     const checkMicrofrontend = async () => {
       try {
-        const response = await fetch('http://localhost:3001', {
+        const response = await fetch('https://investiment-mf.vercel.app/', {
           method: 'HEAD',
           mode: 'no-cors',
         });
@@ -53,18 +52,41 @@ export default function InvestmentsWrapper() {
     return <LoadingComponent />;
   }
 
-
   if (hasError) {
     return <ErrorComponent error="Erro ao conectar com o microfrontend" />;
   }
 
+  if (useFallback) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-gray-900">Meus Investimentos</h2>
+      
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+          <div className="text-gray-400 text-4xl mb-4">📊</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Microfrontend Indisponível
+          </h3>
+          <p className="text-gray-600 mb-4">
+            O microfrontend de investimentos não está disponível no momento.
+          </p>
+          
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-     
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Meus Investimentos</h2>
+    
+      </div>
       
-      <div className="bg-white rounded-lg overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <iframe
-          src="http://localhost:3001"
+          src="https://investiment-mf.vercel.app/"
           className="w-full h-[70vh] border-0"
           onLoad={() => setIsLoading(false)}
           onError={() => {

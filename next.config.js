@@ -20,7 +20,7 @@ const nextConfig = {
     return [
       {
         source: '/investments/:path*',
-        destination: 'http://localhost:3001/investments/:path*',
+        destination: 'https://investiment-mf.vercel.app/:path*',
       },
     ];
   },

@@ -17,12 +17,12 @@ const nextConfig = {
   },
   webpack: (config, options) => {
     const { isServer } = options;
-    
+
     config.plugins.push(
       new NextFederationPlugin({
         name: 'shell',
         remotes: {
-          investments: `investments@http://localhost:3001/_next/static/chunks/remoteEntry.js`,
+          investments: `investments@https://investiment-mf.vercel.app/_next/static/chunks/remoteEntry.js`,
         },
         shared: {
           react: {
