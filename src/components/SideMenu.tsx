@@ -17,7 +17,7 @@ export default function SideMenu() {
               </li>
               <MenuLine />
               <li>
-                <Link href="/dashboard">Investimentos</Link>
+                <Link href="/investments">Investimentos</Link>
               </li>
               <MenuLine />
               <li className="text-center">
