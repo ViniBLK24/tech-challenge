@@ -109,7 +109,9 @@ Para acessar o swagger, entre na rota ```/docs```. Lá, você encontrará a docu
   - Visualização do saldo atual da conta;
     - Opção de ocultar e exibir o saldo;
     - Atualização automática do saldo;
+  - Criação de transação;
   - Listagem de transações;
+  - Gráfico de entradas e saídas;
 - **Listagem de transações**
   - Histórico de transações detalhado;
   
