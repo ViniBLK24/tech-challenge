@@ -7,7 +7,7 @@ const API_URL = "/api/transactions";
 export async function createTransaction(transaction: Transaction, file?: File) {
   // Wait for the user ID
   const accountData = await getAccountData();
-  const userId = accountData.id[0]["userId"];
+  const userId = accountData.userId;
 
   const formData = new FormData();
   formData.append("type", transaction.type);
@@ -37,7 +37,7 @@ export async function createTransaction(transaction: Transaction, file?: File) {
 export async function getTransactions() {
    // Wait for the user ID
   const accountData = await getAccountData();
-  const userId = accountData.id[0]["userId"];
+  const userId = accountData.userId;
 
   const response = await fetch(`${API_URL}?userId=${userId}`);
   return response.json();
