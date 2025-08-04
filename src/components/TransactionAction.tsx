@@ -35,6 +35,7 @@ import { currencyFormatter } from "@/utils/currencyFormatter";
 import { X, CloudUpload, MoveLeft } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { suggestCategory } from "@/utils/suggestCategory";
+import { getAccountData } from "@/utils/usersApi";
 
 type Props = {
   transaction?: Transaction | null;
@@ -87,7 +88,6 @@ export default function TransactionActions({
   });
 
   useEffect(() => {
-    console.log({ transaction, isEditing });
     if (transaction && isEditing) {
       // If editing, populate the form with the transaction data
       setFormData({

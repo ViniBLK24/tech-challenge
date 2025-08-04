@@ -1,10 +1,13 @@
 import { Transaction } from "@/types/transactions";
 import getCurrentUserId from "./getCurrentUserId";
+import { getAccountData } from "./usersApi";
 
 const API_URL = "/api/transactions";
 
 export async function createTransaction(transaction: Transaction, file?: File) {
-  const userId = getCurrentUserId();
+  // Wait for the user ID
+  const accountData = await getAccountData();
+  const userId = accountData.userId;
 
   const formData = new FormData();
   formData.append("type", transaction.type);
@@ -32,13 +35,17 @@ export async function createTransaction(transaction: Transaction, file?: File) {
 }
 
 export async function getTransactions() {
-  const userId = getCurrentUserId();
+   // Wait for the user ID
+  const accountData = await getAccountData();
+  const userId = accountData.userId;
+
   const response = await fetch(`${API_URL}?userId=${userId}`);
   return response.json();
 }
 
 export async function editTransaction(transaction: Transaction, removeFile: boolean, file?: File) {
   const formData = new FormData();
+
   formData.append("type", transaction.type);
   formData.append("amount", transaction.amount.toString());
   formData.append("id", transaction.id!.toString()); // assume id exists for edit
@@ -66,7 +73,6 @@ export async function editTransaction(transaction: Transaction, removeFile: bool
 }
 
 export async function deleteTransaction(transaction: Transaction) {
-  console.log("api")
   const formData = new FormData();
   formData.append("id", transaction.id!.toString());
 

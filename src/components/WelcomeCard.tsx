@@ -34,7 +34,10 @@ interface WelcomeCardProps {
   userName?: string;
 }
 
-export default function WelcomeCard({ balance, userName = "Usuário" }: WelcomeCardProps) {
+export default function WelcomeCard({
+  balance,
+  userName = "Usuário",
+}: WelcomeCardProps) {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   function onEyeClick() {

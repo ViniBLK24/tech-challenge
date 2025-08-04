@@ -43,7 +43,7 @@ export async function loginUser(email: string, password: string): Promise<{ user
 }
 
 // Get account data
-export async function getAccountData(): Promise<{ username: string }> {
+export async function getAccountData(): Promise<{ username: string, userId: string }> {
   const response = await fetch("/api/account", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -57,6 +57,7 @@ export async function getAccountData(): Promise<{ username: string }> {
 
   // Extract username from the account data
   const username = data.result?.account?.[0]?.username || "Usuário";
+  const userId = data.result.account?.[0]?.userId;
   
-  return { username };
+  return { username, userId };
 }

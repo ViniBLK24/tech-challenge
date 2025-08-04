@@ -8,7 +8,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 // API route for handling transaction data
 
 export async function GET(req: NextRequest) {
-  const userId = Number(req.nextUrl.searchParams.get("userId"));
+  const userId = String(req.nextUrl.searchParams.get("userId"));
 
   if (!userId){
     return NextResponse.json(
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const totalBalance = getTotalBalance(result.transactions);
   const transactionId = Date.now();
 
-  let userId: number = 0;
+  let userId: string = "";
   let type: string = "";
   let amount: number = 0;
   let fileUrl = "";
@@ -72,14 +72,12 @@ export async function POST(req: NextRequest) {
   // Handle multipart form-data (with file)
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
-  const userIdStr = formData.get("userId") as string;
+  userId = formData.get("userId") as string;
   type = formData.get("type") as string;
   amount = Number(formData.get("amount"));
-  userId = Number(userIdStr);
 
   (["description", "category"] as const).forEach((key) => {
     const value = formData.get(key);
-    console.log(`${key}: ${value}`)
     if (value && typeof value === "string") {
       optionalFields[key] = value;
     }
@@ -262,7 +260,7 @@ export async function PUT(req: NextRequest) {
       fileUrl,
       ...optionalFields,
       // Remove updatedAt if Transaction type does not allow it
-      // updatedAt: new Date().toISOString(), // <-- Remove this line
+      updatedAt: new Date().toISOString(),
     };
 
     // Salvar arquivo atualizado
@@ -346,3 +344,291 @@ export async function DELETE(req: NextRequest) {
     { status: 200 }
   );
 }
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     ApiErrorResponse:
+ *       type: object
+ *       required:
+ *         - error
+ *         - errorCode
+ *       properties:
+ *         error:
+ *           type: string
+ *           description: Mensagem descritiva do erro
+ *         errorCode:
+ *           type: string
+ *           description: Código do erro
+ *           enum:
+ *             - REQUIRED_FIELDS
+ *             - TRANSACTION_NOT_FOUND
+ *             - INVALID_TRANSFER_TYPE
+ *             - INSUFICIENT_FUNDS_TYPE
+ *             - INVALID_UPLOAD_FORMAT
+ *             - UPLOAD_FILE_TOO_BIG
+ *     Transaction:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         userId:
+ *           type: integer
+ *         type:
+ *           type: string
+ *           enum: [DEPOSIT, TRANSFER]
+ *         amount:
+ *           type: number
+ *         fileUrl:
+ *           type: string
+ *           format: uri
+ *         description:
+ *           type: string
+ *         category:
+ *           type: string
+ */
+
+/**
+ * @openapi
+ * /api/transactions:
+ *   get:
+ *     summary: Lista todas as transações do usuário
+ *     parameters:
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário para filtrar transações
+ *     responses:
+ *       200:
+ *         description: Lista de transações
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 transactions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ */
+ 
+ /**
+ * @openapi
+ * /api/transactions:
+ *  post:
+ *     summary: Cria uma nova transação
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: 
+ *               - userId
+ *               - type
+ *               - amount
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: ID do usuário
+ *               type:
+ *                 type: string
+ *                 enum: [DEPOSIT, TRANSFER]
+ *               amount:
+ *                 type: number
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Arquivo opcional (imagem ou PDF)
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Transação criada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 transactions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *       400:
+ *         description: Requisição inválida
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorResponse'
+ *             examples:
+ *               MissingUserId:
+ *                 summary: ID do usuário não enviado
+ *                 value:
+ *                   error: "Parâmetro userId obrigatório"
+ *                   errorCode: "REQUIRED_FIELDS"
+ *               InvalidTransferType:
+ *                 summary: Tipo de transação inválido
+ *                 value:
+ *                   error: "Tipo de transferência inválido."
+ *                   errorCode: "INVALID_TRANSFER_TYPE"
+ *               InsufficientFunds:
+ *                 summary: Saldo insuficiente para transferência
+ *                 value:
+ *                   error: "Saldo insuficiente."
+ *                   errorCode: "INSUFICIENT_FUNDS_TYPE"
+ *               InvalidFile:
+ *                 summary: Tipo de arquivo inválido
+ *                 value:
+ *                   error: "Tipo de arquivo inválido."
+ *                   errorCode: "INVALID_UPLOAD_FORMAT"
+ *       402:
+ *         description: Campos obrigatórios não preenchidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorResponse'
+ */
+ 
+ /**
+ * @openapi
+ * /api/transactions:
+ *   put:
+ *     summary: Atualiza uma transação existente
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - type
+ *               - amount
+ *             properties:
+ *               id:
+ *                 type: integer
+ *                 description: ID da transação
+ *               type:
+ *                 type: string
+ *                 enum: [DEPOSIT, TRANSFER]
+ *               amount:
+ *                 type: number
+ *               removeFile:
+ *                 type: string
+ *                 enum: ["true", "false"]
+ *                 description: Remove o arquivo existente do S3
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Novo arquivo opcional
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Transação atualizada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 transactions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *       400:
+ *         description: Erro de validação ou atualização
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorResponse'
+ *             examples:
+ *               MissingFields:
+ *                 summary: Campos obrigatórios ausentes
+ *                 value:
+ *                   error: "Campos obrigatórios."
+ *                   errorCode: "REQUIRED_FIELDS"
+ *               InvalidType:
+ *                 summary: Tipo de transferência inválido
+ *                 value:
+ *                   error: "Tipo de transferência inválido."
+ *                   errorCode: "INVALID_TRANSFER_TYPE"
+ *               TransactionNotFound:
+ *                 summary: Transação não encontrada
+ *                 value:
+ *                   error: "Transação não encontrada."
+ *                   errorCode: "TRANSACTION_NOT_FOUND"
+ *               InsufficientFunds:
+ *                 summary: Saldo insuficiente
+ *                 value:
+ *                   error: "Saldo insuficiente."
+ *                   errorCode: "INSUFICIENT_FUNDS_TYPE"
+ */
+ 
+ /**
+ * @openapi
+ * /api/transactions:
+ *   delete:
+ *     summary: Remove uma transação existente
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: integer
+ *                 description: ID da transação a ser removida
+ *     responses:
+ *       200:
+ *         description: Transação removida com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 transactions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *       400:
+ *         description: Erro de validação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorResponse'
+ *             examples:
+ *               MissingId:
+ *                 summary: ID da transação é obrigatório
+ *                 value:
+ *                   error: "ID da transação é obrigatório."
+ *                   errorCode: "REQUIRED_FIELDS"
+ *       404:
+ *         description: Transação não encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorResponse'
+ *             examples:
+ *               NotFound:
+ *                 summary: Transação não encontrada
+ *                 value:
+ *                   error: "Transação não encontrada."
+ *                   errorCode: "TRANSACTION_NOT_FOUND"
+ */
