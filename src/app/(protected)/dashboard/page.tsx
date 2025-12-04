@@ -11,7 +11,6 @@ import getTotalBalance from "@/utils/getTotalBalance";
 import BankStatement from "@/components/BankStatement";
 import { Transaction } from "@/types/transactions";
 import { useRouter } from "next/navigation";
-import getCurrentUser from "@/utils/getCurrentUser";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -23,26 +22,13 @@ export default function Dashboard() {
   // Fetch account data from backend
   useEffect(() => {
     async function fetchAccountData() {
-      // Verificar se há usuário no localStorage antes de fazer chamadas
-      const user = getCurrentUser();
-      if (!user || user.trim() === "") {
-        router.push("/login");
-        return;
-      }
-
       try {
         const response = await fetch("/api/account");
         const data = await response.json();
 
         if (!response.ok) {
           console.error("Error fetching account data:", data.error);
-          // If authentication error, redirect to login
-          if (data.error && data.error.includes("Token de autenticação")) {
-            localStorage.removeItem("currentUser");
-            router.push("/login");
-            return;
-          }
-          // For other errors, try to continue with empty state
+          // For errors, continue with empty state
           setTransactions([]);
           setTotalBalance(0);
           return;
@@ -50,16 +36,7 @@ export default function Dashboard() {
         setUserName(data.result.account[0]["username"].split(" ")[0]); // Only gets user's first name
       } catch (error) {
         console.error("Erro ao buscar dados da conta:", error);
-        // Only redirect on authentication errors
-        if (
-          error instanceof Error &&
-          error.message.includes("Token de autenticação")
-        ) {
-          localStorage.removeItem("currentUser");
-          router.push("/login");
-          return;
-        }
-        // For other errors, continue with empty state
+        // For errors, continue with empty state
         setTransactions([]);
         setTotalBalance(0);
       }
@@ -73,7 +50,7 @@ export default function Dashboard() {
       setTotalBalance(getTotalBalance(data.transactions));
     }
     getTotalAmountOnLoad();
-  }, [router]);
+  }, []);
 
   // Logout function
   async function handleLogout() {

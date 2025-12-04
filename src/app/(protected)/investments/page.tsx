@@ -5,20 +5,9 @@ import DashboardMenu from "@/components/DashboardMenu";
 import TabletMenu from "@/components/TabletMenu";
 import InvestmentsWrapper from "@/components/InvestmentsWrapper";
 import { useRouter } from "next/navigation";
-import getCurrentUser from "@/utils/getCurrentUser";
-import { useEffect } from "react";
 
 export default function Investments() {
   const router = useRouter();
-
-  useEffect(() => {
-    // Verificar se há usuário no localStorage antes de renderizar
-    const user = getCurrentUser();
-    if (!user || user.trim() === "") {
-      router.push("/login");
-      return;
-    }
-  }, [router]);
 
   // Logout function
   async function handleLogout() {
