@@ -4,14 +4,9 @@ import { readDb, writeDb } from "@/utils/db";
 import getTotalBalance from "@/utils/getTotalBalance";
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { requireAuth } from "@/lib/auth";
+import { requireAuthorization, getUserIdFromToken, getAuthToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const authError = requireAuth(req);
-  if (authError) {
-    return authError;
-  }
-
   const userId = String(req.nextUrl.searchParams.get("userId"));
 
   if (!userId){
@@ -22,6 +17,11 @@ export async function GET(req: NextRequest) {
       },
       { status: 400 }
     );
+  }
+
+  const authError = await requireAuthorization(req, userId);
+  if (authError) {
+    return authError;
   }
 
   const result = await readDb();
@@ -62,11 +62,6 @@ async function uploadFileToS3(buffer: Buffer, key: string, contentType: string) 
 
 // -- POST logic
 export async function POST(req: NextRequest) {
-  const authError = requireAuth(req);
-  if (authError) {
-    return authError;
-  }
-
   const result = await readDb();
   const totalBalance = getTotalBalance(result.transactions);
   const transactionId = Date.now();
@@ -98,6 +93,11 @@ export async function POST(req: NextRequest) {
       error: "Parâmetro userId obrigatório",
       errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
     }, { status: 400 });
+  }
+
+  const authError = await requireAuthorization(req, userId);
+  if (authError) {
+    return authError;
   }
 
   if (file && typeof file !== "string") {
@@ -163,11 +163,6 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const authError = requireAuth(req);
-  if (authError) {
-    return authError;
-  }
-
   const result = await readDb();
   const contentType = req.headers.get("content-type");
 
@@ -248,9 +243,32 @@ export async function PUT(req: NextRequest) {
     }
 
     const originalTransaction = result.transactions[transactionIndex];
+
+    const token = getAuthToken(req);
+    if (!token) {
+      return NextResponse.json(
+        { error: "Token de autenticação não encontrado.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS },
+        { status: 401 }
+      );
+    }
+
+    const authenticatedUserId = await getUserIdFromToken(token);
+    if (!authenticatedUserId) {
+      return NextResponse.json(
+        { error: "Token de autenticação inválido.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS },
+        { status: 401 }
+      );
+    }
+
+    if (String(originalTransaction.userId) !== authenticatedUserId) {
+      return NextResponse.json(
+        { error: "Acesso negado. Você não tem permissão para modificar esta transação.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS },
+        { status: 403 }
+      );
+    }
+
     let fileUrl = originalTransaction.fileUrl;
 
-    // Delete file from S3 if user clicked x button
     if (removeFile && fileUrl) {
       const command = new DeleteObjectCommand({
         Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
@@ -300,11 +318,6 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const authError = requireAuth(req);
-  if (authError) {
-    return authError;
-  }
-
   const result = await readDb();
   const formData = await req.formData();
   const id = Number(formData.get("id"));
@@ -336,7 +349,29 @@ export async function DELETE(req: NextRequest) {
 
   const deletedTransaction = result.transactions[transactionIndex];
 
-  // Remover transação do array
+  const token = getAuthToken(req);
+  if (!token) {
+    return NextResponse.json(
+      { error: "Token de autenticação não encontrado.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS },
+      { status: 401 }
+    );
+  }
+
+  const authenticatedUserId = await getUserIdFromToken(token);
+  if (!authenticatedUserId) {
+    return NextResponse.json(
+      { error: "Token de autenticação inválido.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS },
+      { status: 401 }
+    );
+  }
+
+  if (String(deletedTransaction.userId) !== authenticatedUserId) {
+    return NextResponse.json(
+      { error: "Acesso negado. Você não tem permissão para deletar esta transação.", errorCode: ErrorCodeEnum.REQUIRED_FIELDS },
+      { status: 403 }
+    );
+  }
+
   result.transactions.splice(transactionIndex, 1);
 
   // Apagar arquivo do S3 se existir
