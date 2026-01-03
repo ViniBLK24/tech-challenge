@@ -1,22 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AccountResponse, BackendError } from "@/types/auth";
+import { requireAuth, getAuthToken } from "@/lib/auth";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-// Get account data
 export async function GET(req: NextRequest) {
   try {
-    // Get auth token from cookies
-    const token = req.cookies.get("auth-token")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Token de autenticação não encontrado." },
-        { status: 401 }
-      );
+    const authError = requireAuth(req);
+    if (authError) {
+      return authError;
     }
 
-    // Call backend API
+    const token = getAuthToken(req);
     const response = await fetch(`${BACKEND_API_URL}/account`, {
       method: "GET",
       headers: {
