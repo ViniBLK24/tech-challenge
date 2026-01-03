@@ -54,20 +54,12 @@ export default function Dashboard() {
 
   // Logout function
   async function handleLogout() {
-    console.log("handleLogout function called");
     try {
       await fetch("/api/users/logout", { method: "POST" });
-      console.log("Logout API call successful");
-      // Clear any local storage data
-      localStorage.removeItem("currentUser");
-      // Small delay to ensure cookie is cleared before redirect
       setTimeout(() => {
         router.push("/");
       }, 100);
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      // Clear local storage even on error
-      localStorage.removeItem("currentUser");
       setTimeout(() => {
         router.push("/");
       }, 100);
