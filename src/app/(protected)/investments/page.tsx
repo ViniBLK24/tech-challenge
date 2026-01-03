@@ -34,7 +34,9 @@ export default function Investments() {
           </div>
           <div className="flex flex-col gap-4 col-span-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">Investimentos</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                Investimentos
+              </h1>
               <InvestmentsWrapper />
             </div>
           </div>
@@ -42,4 +44,4 @@ export default function Investments() {
       </div>
     </div>
   );
-} 
+}
