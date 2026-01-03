@@ -3,11 +3,15 @@ import { Transaction, TransactionTypeEnum } from "@/types/transactions";
 import { readDb, writeDb } from "@/utils/db";
 import getTotalBalance from "@/utils/getTotalBalance";
 import { NextRequest, NextResponse } from "next/server";
-// app/api/s3-upload/route.ts
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-// API route for handling transaction data
+import { requireAuth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) {
+    return authError;
+  }
+
   const userId = String(req.nextUrl.searchParams.get("userId"));
 
   if (!userId){
@@ -58,6 +62,11 @@ async function uploadFileToS3(buffer: Buffer, key: string, contentType: string) 
 
 // -- POST logic
 export async function POST(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) {
+    return authError;
+  }
+
   const result = await readDb();
   const totalBalance = getTotalBalance(result.transactions);
   const transactionId = Date.now();
@@ -154,6 +163,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) {
+    return authError;
+  }
+
   const result = await readDb();
   const contentType = req.headers.get("content-type");
 
@@ -286,9 +300,12 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const result = await readDb();
+  const authError = requireAuth(req);
+  if (authError) {
+    return authError;
+  }
 
-  // Extrair ID do formData (assumindo que será passado no corpo da requisição)
+  const result = await readDb();
   const formData = await req.formData();
   const id = Number(formData.get("id"));
 
