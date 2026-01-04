@@ -14,6 +14,17 @@ export default function LoginForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inputEmail)) {
+      setErrorMessage("Por favor, insira um email válido.");
+      return;
+    }
+
+    if (inputPassword.length < 8) {
+      setErrorMessage("A senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+
     try {
       const response = await loginUser(inputEmail, inputPassword);
 

@@ -16,6 +16,28 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (inputName.trim().length < 2) {
+      setErrorMessage("O nome deve ter no mínimo 2 caracteres.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inputEmail)) {
+      setErrorMessage("Por favor, insira um email válido.");
+      return;
+    }
+
+    if (inputPassword.length < 8) {
+      setErrorMessage("A senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)/;
+    if (!passwordRegex.test(inputPassword)) {
+      setErrorMessage("A senha deve conter pelo menos uma letra e um número.");
+      return;
+    }
+
     const registerUser: User = {
       userName: inputName,
       email: inputEmail,
