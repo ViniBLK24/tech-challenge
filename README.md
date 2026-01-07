@@ -66,22 +66,92 @@ Para executar o código localmente siga as próximas etapas:
 ```
 
 ## Estrutura do Projeto
-```
-├── public/            # Arquivos estáticos
-├── app/               # Páginas do App Router
-     ├── (protected)   # Páginas e rotas que exigem autenticação
-     └── (public)      # Páginas públicas, acessíveis sem login
-├── components/        # Componentes reutilizáveis
-├── constants/         # Constantes globais do projeto
-├── database/          # Contém db.json que simula um banco de dados 
-├── hooks/             # Custom hooks do React
-├── lib/               # Funções utilitárias e helpers genéricos
-├── types/             # Tipagens TypeScript compartilhadas
-├── utils/             # Funções auxiliares e chamadas à API
-├── Dockerfile         # Arquivo para containerização e deploy
-└── README.md          # Documentação do projeto
+
+Este projeto segue os princípios da **Clean Architecture**, organizando o código em camadas bem definidas para facilitar manutenção, testes e escalabilidade.
+
+### Arquitetura
 
 ```
+src/
+├── domain/                    # Camada de Domínio (Regras de Negócio)
+│   ├── entities/              # Entidades do domínio (Transaction, User)
+│   ├── use-cases/             # Casos de uso (lógica de negócio)
+│   │   ├── transactions/      # Use cases de transações
+│   │   └── users/             # Use cases de usuários
+│   ├── services/              # Serviços de domínio
+│   └── constants/             # Constantes do domínio (códigos de erro)
+│
+├── infrastructure/            # Camada de Infraestrutura
+│   ├── database/              # Repositório de banco de dados
+│   │   └── data/              # Arquivo db.json
+│   ├── storage/               # Serviços de armazenamento (S3)
+│   ├── repositories/          # Implementações de repositórios
+│   └── api/                   # Clientes de API e rotas
+│       ├── routes/            # Rotas da API (Next.js API Routes)
+│       └── clients/           # Clientes HTTP para APIs externas
+│
+├── presentation/              # Camada de Apresentação (UI)
+│   ├── components/           # Componentes React
+│   │   ├── ui/               # Componentes de UI reutilizáveis
+│   │   ├── transactions/     # Componentes específicos de transações
+│   │   └── login/            # Componentes de autenticação
+│   ├── hooks/                # Custom hooks do React
+│   └── api/                  # Clientes de API para a camada de apresentação
+│
+├── shared/                    # Código compartilhado
+│   ├── lib/                  # Utilitários e helpers genéricos
+│   ├── types/                # Tipos compartilhados (auth, etc)
+│   └── constants/            # Constantes compartilhadas
+│
+└── app/                       # Next.js App Router
+    ├── (protected)/          # Páginas protegidas (requerem autenticação)
+    ├── (public)/             # Páginas públicas
+    └── api/                  # API Routes do Next.js
+
+├── public/                    # Arquivos estáticos
+├── Dockerfile                 # Containerização
+└── README.md                  # Documentação
+```
+
+### Princípios da Arquitetura
+
+#### 1. **Domain Layer (Domínio)**
+- Contém as **entidades** e **regras de negócio** puras
+- Independente de frameworks e bibliotecas externas
+- **Use Cases**: Encapsulam a lógica de negócio (criar transação, calcular saldo, etc)
+- **Services**: Serviços de domínio (sugestão de categoria, etc)
+
+#### 2. **Infrastructure Layer (Infraestrutura)**
+- Implementa detalhes técnicos (banco de dados, S3, APIs externas)
+- **Repositories**: Abstraem o acesso a dados
+- **Storage Services**: Gerenciam armazenamento em nuvem (S3)
+- **API Clients**: Clientes HTTP para comunicação com APIs
+
+#### 3. **Presentation Layer (Apresentação)**
+- Componentes React e lógica de UI
+- **Components**: Componentes reutilizáveis e específicos
+- **Hooks**: Custom hooks para lógica de apresentação
+- **API Clients**: Clientes que fazem chamadas às rotas da API
+
+#### 4. **Shared Layer (Compartilhado)**
+- Código compartilhado entre camadas
+- Utilitários genéricos, tipos compartilhados e constantes
+
+### Fluxo de Dados
+
+```
+Presentation → Domain (Use Cases) → Infrastructure (Repositories) → Database
+     ↓                ↓                        ↓
+  Components    Business Logic          Data Access
+```
+
+### Benefícios
+
+- ✅ **Separação de responsabilidades**: Cada camada tem uma responsabilidade clara
+- ✅ **Testabilidade**: Fácil de testar cada camada isoladamente
+- ✅ **Manutenibilidade**: Mudanças em uma camada não afetam outras
+- ✅ **Escalabilidade**: Fácil adicionar novas funcionalidades
+- ✅ **Reutilização**: Use cases e serviços podem ser reutilizados
 
 
 ## Swagger

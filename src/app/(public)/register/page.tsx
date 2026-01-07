@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import RegisterForm from "@/components/login/RegisterForm";
+import RegisterForm from "@/presentation/components/login/RegisterForm";
 
 export default function RegisterPage() {
   return (
