@@ -12,6 +12,7 @@ import Image from "next/image";
 import BackgroundShapes from "@/components/ui/BackgroundShapes";
 import { useState } from "react";
 import { currencyFormatter } from "@/utils/currencyFormatter";
+import { useTransactions } from "@/contexts/TransactionsContext";
 
 const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
@@ -30,14 +31,13 @@ const formatCurrentDate = () => {
 };
 
 interface WelcomeCardProps {
-  balance: number;
   userName?: string;
 }
 
 export default function WelcomeCard({
-  balance,
   userName = "Usuário",
 }: WelcomeCardProps) {
+  const { totalBalance } = useTransactions();
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   function onEyeClick() {
@@ -77,7 +77,7 @@ export default function WelcomeCard({
             R${" "}
             {isBalanceHidden
               ? "••••••"
-              : currencyFormatter((balance / 100).toFixed(2))}
+              : currencyFormatter((totalBalance / 100).toFixed(2))}
           </p>
         </div>
       </CardContent>

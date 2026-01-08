@@ -6,11 +6,16 @@ import TabletMenu from "@/components/TabletMenu";
 import WelcomeCard from "@/components/WelcomeCard";
 import TransactionActions from "@/components/TransactionAction";
 import { useEffect, useState } from "react";
-import { getTransactions } from "@/utils/api";
+import { deleteTransaction, getTransactions } from "@/utils/api";
 import getTotalBalance from "@/utils/getTotalBalance";
 import BankStatement from "@/components/BankStatement";
 import { Transaction } from "@/types/transactions";
 import { useRouter } from "next/navigation";
+import { NewTransaction } from "@/components/NewTransaction";
+import { EditTransactionProvider } from "@/contexts/EditTransactionContext";
+import { TransactionsProvider } from "@/contexts/TransactionsContext";
+import { ERROR_CODES } from "@/constants/errors";
+import { ErrorCodeEnum } from "@/types/apiErrors";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -74,53 +79,39 @@ export default function Dashboard() {
     }
   }
 
-  // Remove editing states and returns component to "Nova Transação" action
-  function handleCancelEditing(cancel: boolean) {
-    setIsEditing(cancel);
-    setTransaction(null);
-  }
-
-  // Will always update the totalBalance when a new transaction is made in <TransactionActions>
-  async function handleDataFromChild(isEditingState: boolean) {
+  async function refreshTransactions() {
     const data = await getTransactions();
-    setTotalBalance(getTotalBalance(data.transactions));
     setTransactions(data.transactions);
-    setIsEditing(isEditingState);
-  }
-
-  function handleAction(transaction: Transaction, isEditing: boolean) {
-    // This function is called when a transaction is selected for editing or deletion
-    setIsEditing(isEditing);
-    setTransaction(transaction);
+    setTotalBalance(getTotalBalance(data.transactions));
   }
 
   return (
-    <div className="w-[100%]">
-      <DashboardMenu onLogout={handleLogout} />
-      <div className="lg: flex justify-center w-[100%]">
-        <div className="flex flex-col gap-4 p-6 md:p-12 lg:grid grid-cols-7 w-[100%] max-w-[1600px]">
-          <div className="hidden md:block">
-            <TabletMenu />
-            <SideMenu />
-          </div>
-          <div className="flex flex-col gap-4 col-span-4">
-            <WelcomeCard balance={totalBalance} userName={userName} />
-            <TransactionActions
+    <EditTransactionProvider>
+      <div className="w-[100%]">
+        <DashboardMenu onLogout={handleLogout} />
+        <div className="lg: flex justify-center w-[100%]">
+          <div className="flex flex-col gap-4 p-6 md:p-12 lg:grid grid-cols-7 w-[100%] max-w-[1600px]">
+            <div className="hidden md:block">
+              <TabletMenu />
+              <SideMenu />
+            </div>
+            <div className="flex flex-col gap-4 col-span-4">
+              <WelcomeCard userName={userName} />
+              <NewTransaction />
+              {/* <TransactionActions
               onComplete={handleDataFromChild}
               isEditing={isEditing}
               transaction={transaction}
               transactions={transactions}
               onCancelEditing={handleCancelEditing}
-            />
-          </div>
-          <div className="flex flex-col gap-4 col-span-2">
-            <BankStatement
-              handleAction={handleAction}
-              transactions={transactions}
-            />
+            /> */}
+            </div>
+            <div className="flex flex-col gap-4 col-span-2">
+              <BankStatement />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </EditTransactionProvider>
   );
 }

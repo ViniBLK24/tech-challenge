@@ -10,27 +10,37 @@ import { createPortal } from "react-dom";
 import Modal from "./ui/Modal";
 import Image from "next/image";
 import { Bar } from "react-chartjs-2";
-import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+import {
+  Chart,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import { useEditTransaction } from "@/contexts/EditTransactionContext";
+import { useTransactions } from "@/contexts/TransactionsContext";
 
-export default function BankStatement(props: {
-  handleAction?: (transaction: Transaction, isEditing: boolean) => void;
-  transactions: Transaction[];
-}) {
+export default function BankStatement() {
+  const { transactions, deleteTransaction } = useTransactions();
+  const { openEdit } = useEditTransaction();
   const [transactionsData, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
 
   useEffect(() => {
-    if (!props.transactions) return;
+    if (!transactions) return;
     setIsLoading(true);
-    setTransactions(props.transactions.slice(0, 8));
+    setTransactions(transactions.slice(0, 8));
     setIsLoading(false);
-  }, [props.transactions]);
+  }, [transactions]);
 
   useEffect(() => {
     // Filtra por data
@@ -91,7 +101,7 @@ export default function BankStatement(props: {
         ticks: {
           color: "#111",
           stepSize: 1000,
-          callback: function(value: number) {
+          callback: function (value: number) {
             return Number.isInteger(value) ? value : null;
           },
         },
@@ -116,9 +126,16 @@ export default function BankStatement(props: {
           <CardTitle className="text-2xl text-[25px] mb-8">Extrato</CardTitle>
 
           {/* Filtro por data */}
-          <form className="flex gap-4 items-end mb-6 flex-wrap" onSubmit={handleFilter} aria-label="Filtro por data">
+          <form
+            className="flex gap-4 items-end mb-6 flex-wrap"
+            onSubmit={handleFilter}
+            aria-label="Filtro por data"
+          >
             <div>
-              <label htmlFor="dateFrom" className="block text-sm font-semibold text-black mb-1">
+              <label
+                htmlFor="dateFrom"
+                className="block text-sm font-semibold text-black mb-1"
+              >
                 De:
               </label>
               <input
@@ -131,7 +148,10 @@ export default function BankStatement(props: {
               />
             </div>
             <div>
-              <label htmlFor="dateTo" className="block text-sm font-semibold text-black mb-1">
+              <label
+                htmlFor="dateTo"
+                className="block text-sm font-semibold text-black mb-1"
+              >
                 Até:
               </label>
               <input
@@ -161,7 +181,11 @@ export default function BankStatement(props: {
             <h2 className="text-lg font-bold text-black mb-2" tabIndex={0}>
               Entradas vs Saídas
             </h2>
-            <Bar data={chartData} options={chartOptions} aria-label="Gráfico de barras de entradas e saídas" />
+            <Bar
+              data={chartData}
+              options={chartOptions}
+              aria-label="Gráfico de barras de entradas e saídas"
+            />
           </section>
 
           {isLoading && (
@@ -202,8 +226,10 @@ export default function BankStatement(props: {
                           }
                         : undefined
                     }
-                    onEdit={() => props.handleAction?.(transaction, true)}
-                    onDelete={() => props.handleAction?.(transaction, false)}
+                    onEdit={() => openEdit(transaction)}
+                    onDelete={async () => {
+                      await deleteTransaction(transaction);
+                    }}
                   />
                 </div>
               </div>
