@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { deleteTransaction, getTransactions } from "@/utils/api";
-import { Transaction } from "@/types/transactions";
-import DashboardMenu from "@/components/DashboardMenu";
-import PageHeader from "@/components/transactions/PageHeader";
-import SearchFilter from "@/components/transactions/SearchFilter";
-import TransactionsTable from "@/components/transactions/TransactionsTable";
-import Pagination from "@/components/transactions/Pagination";
-import SideMenu from "@/components/SideMenu";
-import TabletMenu from "@/components/TabletMenu";
-import TransactionActions from "@/components/TransactionAction";
-import Modal from "@/components/ui/Modal";
+import { deleteTransaction, getTransactions } from "@/presentation/api/transactions.api";
+import { Transaction } from "@/domain/entities";
+import DashboardMenu from "@/presentation/components/DashboardMenu";
+import PageHeader from "@/presentation/components/transactions/PageHeader";
+import SearchFilter from "@/presentation/components/transactions/SearchFilter";
+import TransactionsTable from "@/presentation/components/transactions/TransactionsTable";
+import Pagination from "@/presentation/components/transactions/Pagination";
+import SideMenu from "@/presentation/components/SideMenu";
+import TabletMenu from "@/presentation/components/TabletMenu";
+import TransactionActions from "@/presentation/components/TransactionAction";
+import Modal from "@/presentation/components/ui/Modal";
 import { createPortal } from "react-dom";
 
 export default function TransactionsPage() {

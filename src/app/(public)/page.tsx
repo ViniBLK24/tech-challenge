@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import LoginForm from "@/components/login/LoginForm";
-import RegisterForm from "@/components/login/RegisterForm";
+import Header from "@/presentation/components/Header";
+import Footer from "@/presentation/components/Footer";
+import LoginForm from "@/presentation/components/login/LoginForm";
+import RegisterForm from "@/presentation/components/login/RegisterForm";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import getCurrentUser from "@/utils/getCurrentUser";
+import getCurrentUser from "@/shared/lib/getCurrentUser";
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

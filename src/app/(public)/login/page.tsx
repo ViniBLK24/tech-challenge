@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import LoginForm from "@/components/login/LoginForm";
+import LoginForm from "@/presentation/components/login/LoginForm";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import getCurrentUser from "@/utils/getCurrentUser";
+import getCurrentUser from "@/shared/lib/getCurrentUser";
 
 export default function LoginPage() {
   const router = useRouter();

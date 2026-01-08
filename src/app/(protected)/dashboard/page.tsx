@@ -1,15 +1,15 @@
 "use client";
 
-import SideMenu from "@/components/SideMenu";
-import DashboardMenu from "@/components/DashboardMenu";
-import TabletMenu from "@/components/TabletMenu";
-import WelcomeCard from "@/components/WelcomeCard";
-import TransactionActions from "@/components/TransactionAction";
+import SideMenu from "@/presentation/components/SideMenu";
+import DashboardMenu from "@/presentation/components/DashboardMenu";
+import TabletMenu from "@/presentation/components/TabletMenu";
+import WelcomeCard from "@/presentation/components/WelcomeCard";
+import TransactionActions from "@/presentation/components/TransactionAction";
 import { useEffect, useState } from "react";
-import { getTransactions } from "@/utils/api";
-import getTotalBalance from "@/utils/getTotalBalance";
-import BankStatement from "@/components/BankStatement";
-import { Transaction } from "@/types/transactions";
+import { getTransactions } from "@/presentation/api/transactions.api";
+import { CalculateBalanceUseCase } from "@/domain/use-cases/transactions";
+import BankStatement from "@/presentation/components/BankStatement";
+import { Transaction } from "@/domain/entities";
 import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
@@ -47,7 +47,8 @@ export default function Dashboard() {
     async function getTotalAmountOnLoad() {
       const data = await getTransactions();
       setTransactions(data.transactions);
-      setTotalBalance(getTotalBalance(data.transactions));
+      const calculateBalance = new CalculateBalanceUseCase();
+      setTotalBalance(calculateBalance.execute(data.transactions));
     }
     getTotalAmountOnLoad();
   }, []);
@@ -83,7 +84,8 @@ export default function Dashboard() {
   // Will always update the totalBalance when a new transaction is made in <TransactionActions>
   async function handleDataFromChild(isEditingState: boolean) {
     const data = await getTransactions();
-    setTotalBalance(getTotalBalance(data.transactions));
+    const calculateBalance = new CalculateBalanceUseCase();
+    setTotalBalance(calculateBalance.execute(data.transactions));
     setTransactions(data.transactions);
     setIsEditing(isEditingState);
   }
