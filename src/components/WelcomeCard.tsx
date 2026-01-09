@@ -12,6 +12,7 @@ import Image from "next/image";
 import BackgroundShapes from "@/components/ui/BackgroundShapes";
 import { useState } from "react";
 import { currencyFormatter } from "@/utils/currencyFormatter";
+import { sanitizeText } from "@/lib/sanitize";
 
 const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
@@ -39,6 +40,7 @@ export default function WelcomeCard({
   userName = "Usuário",
 }: WelcomeCardProps) {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const sanitizedUserName = sanitizeText(userName) || "Usuário";
 
   function onEyeClick() {
     setIsBalanceHidden((prev) => !prev);
@@ -51,7 +53,7 @@ export default function WelcomeCard({
       <CardHeader className="flex flex-col md:items-start md:gap-y-10">
         <div>
           <CardTitle className="text-white text-3xl">
-            Olá, {userName}! :)
+            Olá, {sanitizedUserName}! :)
           </CardTitle>
           <CardDescription className="text-md md:mt-2">
             {formatCurrentDate()}

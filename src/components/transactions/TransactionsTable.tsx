@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Modal from "../ui/Modal";
 import Image from "next/image";
+import { sanitizeText } from "@/lib/sanitize";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -97,8 +98,8 @@ export default function TransactionsTable({
                     type={transaction.type}
                   />
                 </td>
-                <td className="px-6 py-4 ">{transaction.description}</td>
-                <td className="px-6 py-4 ">{transaction.category}</td>
+                <td className="px-6 py-4 ">{sanitizeText(transaction.description)}</td>
+                <td className="px-6 py-4 ">{sanitizeText(transaction.category)}</td>
                 <td className="px-6 py-4 text-muted-foreground">
                   {formatDate(transaction.createdAt)}
                 </td>

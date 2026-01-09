@@ -11,6 +11,7 @@ import getTotalBalance from "@/utils/getTotalBalance";
 import BankStatement from "@/components/BankStatement";
 import { Transaction } from "@/types/transactions";
 import { useRouter } from "next/navigation";
+import { sanitizeText } from "@/lib/sanitize";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -28,12 +29,12 @@ export default function Dashboard() {
 
         if (!response.ok) {
           console.error("Error fetching account data:", data.error);
-          // For errors, continue with empty state
           setTransactions([]);
           setTotalBalance(0);
           return;
         }
-        setUserName(data.result.account[0]["username"].split(" ")[0]); // Only gets user's first name
+        const rawUsername = data.result.account[0]["username"]?.split(" ")[0] || "";
+        setUserName(sanitizeText(rawUsername));
       } catch (error) {
         console.error("Erro ao buscar dados da conta:", error);
         // For errors, continue with empty state

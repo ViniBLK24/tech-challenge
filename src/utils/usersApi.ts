@@ -1,5 +1,6 @@
 import { User } from "@/types/user";
 import { RegisterResponse, BackendError } from "@/types/auth";
+import { sanitizeText } from "@/lib/sanitize";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -55,8 +56,8 @@ export async function getAccountData(): Promise<{ username: string, userId: stri
     throw new Error(data.error || "Erro ao buscar dados da conta.");
   }
 
-  // Extract username from the account data
-  const username = data.result?.account?.[0]?.username || "Usuário";
+  const rawUsername = data.result?.account?.[0]?.username || "Usuário";
+  const username = sanitizeText(rawUsername) || "Usuário";
   const userId = data.result.account?.[0]?.userId;
   
   return { username, userId };
