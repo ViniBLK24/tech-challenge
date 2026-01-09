@@ -1,9 +1,9 @@
 "use client";
 
-import SideMenu from "@/components/SideMenu";
-import DashboardMenu from "@/components/DashboardMenu";
-import TabletMenu from "@/components/TabletMenu";
-import InvestmentsWrapper from "@/components/InvestmentsWrapper";
+import SideMenu from "@/presentation/components/SideMenu";
+import DashboardMenu from "@/presentation/components/DashboardMenu";
+import TabletMenu from "@/presentation/components/TabletMenu";
+import InvestmentsWrapper from "@/presentation/components/InvestmentsWrapper";
 import { useRouter } from "next/navigation";
 
 export default function Investments() {

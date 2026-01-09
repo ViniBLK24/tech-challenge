@@ -1,7 +1,7 @@
-import { User } from "@/types/user";
-import { RegisterResponse, BackendError } from "@/types/auth";
-import { sanitizeText } from "@/lib/sanitize";
-import { handleError, handleApiError } from "@/lib/errorHandler";
+import { User } from "@/domain/entities";
+import { sanitizeText } from "@/shared/lib/sanitize";
+import { handleApiError } from "@/shared/lib/errorHandler";
+import { RegisterResponse } from "@/shared/types/auth";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -28,13 +28,16 @@ export async function createUser(user: User): Promise<RegisterResponse> {
 }
 
 // Login user - now calls our internal API route that handles backend integration
-export async function loginUser(email: string, password: string): Promise<{ user: { id: string; userName: string; email: string } }> {
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<{ user: { id: string; userName: string; email: string } }> {
   const response = await fetch("/api/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  
+
   const data = await response.json();
 
   if (!response.ok) {
@@ -46,7 +49,10 @@ export async function loginUser(email: string, password: string): Promise<{ user
 }
 
 // Get account data
-export async function getAccountData(): Promise<{ username: string, userId: string }> {
+export async function getAccountData(): Promise<{
+  username: string;
+  userId: string;
+}> {
   const response = await fetch("/api/account", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -62,6 +68,6 @@ export async function getAccountData(): Promise<{ username: string, userId: stri
   const rawUsername = data.result?.account?.[0]?.username || "Usuário";
   const username = sanitizeText(rawUsername) || "Usuário";
   const userId = data.result.account?.[0]?.userId;
-  
+
   return { username, userId };
 }

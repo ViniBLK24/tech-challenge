@@ -1,6 +1,6 @@
+import { requireAuth, getAuthToken } from "@/shared/lib/auth";
+import { AccountResponse, BackendError } from "@/shared/types/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { AccountResponse, BackendError } from "@/types/auth";
-import { requireAuth, getAuthToken } from "@/lib/auth";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const response = await fetch(`${BACKEND_API_URL}/account`, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -25,7 +25,10 @@ export async function GET(req: NextRequest) {
     if (!response.ok) {
       const error = data as BackendError;
       return NextResponse.json(
-        { error: error.message || error.error || "Erro ao buscar dados da conta." },
+        {
+          error:
+            error.message || error.error || "Erro ao buscar dados da conta.",
+        },
         { status: response.status }
       );
     }
