@@ -3,7 +3,7 @@ export default function getCurrentUser(): string{
 
     if(storedUser){
         const user = JSON.parse(storedUser);
-        return user;
+        return user.userName;
     } else {
         return "";
     }
