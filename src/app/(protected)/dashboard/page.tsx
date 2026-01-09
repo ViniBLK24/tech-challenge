@@ -13,6 +13,7 @@ import { Transaction } from "@/types/transactions";
 import { useRouter } from "next/navigation";
 import { sanitizeText } from "@/lib/sanitize";
 import { logger } from "@/lib/logger";
+import { handleError } from "@/lib/errorHandler";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -29,7 +30,8 @@ export default function Dashboard() {
         const data = await response.json();
 
         if (!response.ok) {
-          logger.error("Error fetching account data:", data.error);
+          const errorMsg = handleError(data);
+          logger.error("Error fetching account data:", errorMsg.description);
           setTransactions([]);
           setTotalBalance(0);
           return;
@@ -37,7 +39,8 @@ export default function Dashboard() {
         const rawUsername = data.result.account[0]["username"]?.split(" ")[0] || "";
         setUserName(sanitizeText(rawUsername));
       } catch (error) {
-        logger.error("Erro ao buscar dados da conta:", error);
+        const errorMsg = handleError(error);
+        logger.error("Erro ao buscar dados da conta:", errorMsg.description);
         setTransactions([]);
         setTotalBalance(0);
       }

@@ -14,6 +14,7 @@ import TransactionActions from "@/components/TransactionAction";
 import Modal from "@/components/ui/Modal";
 import { createPortal } from "react-dom";
 import { logger } from "@/lib/logger";
+import { handleError } from "@/lib/errorHandler";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -47,7 +48,8 @@ export default function TransactionsPage() {
       setFilteredTransactions(updatedTransactions);
       setCurrentPage(1);
     } catch (error) {
-      logger.error("Error deleting transaction:", error);
+      const errorMsg = handleError(error);
+      logger.error("Error deleting transaction:", errorMsg.description);
     }
   }
 

@@ -37,6 +37,7 @@ import { useDropzone } from "react-dropzone";
 import { suggestCategory } from "@/utils/suggestCategory";
 import { getAccountData } from "@/utils/usersApi";
 import { logger } from "@/lib/logger";
+import { handleError, getErrorMessageFromResponse } from "@/lib/errorHandler";
 
 type Props = {
   transaction?: Transaction | null;
@@ -159,20 +160,21 @@ export default function TransactionActions({
           variant: "success",
           duration: 4000,
         });
-      } else {
-        const code = response.errorCode as ErrorCodeEnum;
+        } else {
+        const errorMsg = getErrorMessageFromResponse(response);
         toast({
-          title: ERROR_CODES[code].title,
-          description: ERROR_CODES[code].desc,
+          title: errorMsg.title,
+          description: errorMsg.description,
           variant: "warning",
           duration: 4000,
         });
       }
     } catch (err) {
+      const errorMsg = handleError(err);
       logger.error(err);
       toast({
-        title: "Algo deu errado.",
-        description: "Falha na operação de deletar.",
+        title: errorMsg.title,
+        description: errorMsg.description,
         variant: "destructive",
         duration: 4000,
       });
@@ -213,10 +215,11 @@ export default function TransactionActions({
         await handleCreateTransaction(transactionData, file);
       }
     } catch (err) {
+      const errorMsg = handleError(err);
       logger.error(err);
       toast({
-        title: "Algo deu errado.",
-        description: "Falha na operação.",
+        title: errorMsg.title,
+        description: errorMsg.description,
         variant: "destructive",
         duration: 4000,
       });
@@ -243,19 +246,20 @@ export default function TransactionActions({
             duration: 4000,
           });
         } else {
-          const code = response.errorCode as ErrorCodeEnum;
+          const errorMsg = getErrorMessageFromResponse(response);
           toast({
-            title: ERROR_CODES[code].title,
-            description: ERROR_CODES[code].desc,
+            title: errorMsg.title,
+            description: errorMsg.description,
             variant: "warning",
             duration: 4000,
           });
         }
       } catch (err) {
+        const errorMsg = handleError(err);
         logger.error(err);
         toast({
-          title: "Algo deu errado.",
-          description: "Falha na criação de transferência.",
+          title: errorMsg.title,
+          description: errorMsg.description,
           variant: "destructive",
           duration: 4000,
         });
@@ -289,19 +293,20 @@ export default function TransactionActions({
             duration: 4000,
           });
         } else {
-          const code = response.errorCode as ErrorCodeEnum;
+          const errorMsg = getErrorMessageFromResponse(response);
           toast({
-            title: ERROR_CODES[code].title,
-            description: ERROR_CODES[code].desc,
+            title: errorMsg.title,
+            description: errorMsg.description,
             variant: "warning",
             duration: 4000,
           });
         }
       } catch (err) {
+        const errorMsg = handleError(err);
         logger.error(err);
         toast({
-          title: "Algo deu errado.",
-          description: "Falha na operação de editar.",
+          title: errorMsg.title,
+          description: errorMsg.description,
           variant: "destructive",
           duration: 4000,
         });

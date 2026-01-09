@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { loginUser } from "@/utils/usersApi";
 import setCurrentUser from "@/utils/setCurrentUser";
 import { logger } from "@/lib/logger";
+import { handleError } from "@/lib/errorHandler";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -35,12 +36,9 @@ export default function LoginForm() {
       setCurrentUser(safeUser);
       router.push("/dashboard");
     } catch (err) {
-      if (err instanceof Error) {
-        setErrorMessage(err.message);
-        logger.error(err.message);
-      } else {
-        setErrorMessage("Erro inesperado.");
-      }
+      const errorMsg = handleError(err);
+      setErrorMessage(errorMsg.description);
+      logger.error(err);
     }
   }
 

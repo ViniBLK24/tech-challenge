@@ -1,6 +1,7 @@
 import { User } from "@/types/user";
 import { RegisterResponse, BackendError } from "@/types/auth";
 import { sanitizeText } from "@/lib/sanitize";
+import { handleError, handleApiError } from "@/lib/errorHandler";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -19,8 +20,8 @@ export async function createUser(user: User): Promise<RegisterResponse> {
   const data = await response.json();
 
   if (!response.ok) {
-    const error = data as BackendError;
-    throw new Error(error.message || error.error || "Erro ao criar usuário.");
+    const errorMsg = handleApiError(response);
+    throw new Error(errorMsg.description);
   }
 
   return data as RegisterResponse;
@@ -37,7 +38,8 @@ export async function loginUser(email: string, password: string): Promise<{ user
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Erro ao logar usuário.");
+    const errorMsg = handleApiError(response);
+    throw new Error(errorMsg.description);
   }
 
   return data;
@@ -53,7 +55,8 @@ export async function getAccountData(): Promise<{ username: string, userId: stri
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Erro ao buscar dados da conta.");
+    const errorMsg = handleApiError(response);
+    throw new Error(errorMsg.description);
   }
 
   const rawUsername = data.result?.account?.[0]?.username || "Usuário";
