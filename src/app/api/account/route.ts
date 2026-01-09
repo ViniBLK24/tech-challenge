@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AccountResponse, BackendError } from "@/types/auth";
+import { AccountResponse, BackendError } from "@/shared/types/auth";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 

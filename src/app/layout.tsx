@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ToasterProvider } from "@/components/ui/ToastProvider";
-import { AppProviders } from "@/components/AppProviders";
+import { ToasterProvider } from "@/presentation/components/ui/ToastProvider";
+import { AppProviders } from "@/presentation/components/AppProviders";
 
 // Defines inter as the main font for the project
 const inter = Inter({

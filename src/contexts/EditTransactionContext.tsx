@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import { Transaction } from "@/types/transactions";
-import { EditTransactionModal } from "@/components/EditTransactionModal";
+import { EditTransactionModal } from "@/presentation/components/EditTransactionModal";
 
 type EditTransactionContextType = {
   openEdit: (transaction: Transaction) => void;

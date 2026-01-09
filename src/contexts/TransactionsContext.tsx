@@ -109,16 +109,34 @@ export function TransactionsProvider({
     await refresh();
   }
 
+  // async function updateTransaction(
+  //   transaction: Transaction,
+  //   options?: UpdateTransactionOptions
+  // ) {
+  //   await apiEdit(
+  //     transaction,
+  //     options?.shouldRemoveFile ?? false,
+  //     options?.file ?? undefined
+  //   );
+  //   await refresh();
+  // }
+
   async function updateTransaction(
     transaction: Transaction,
     options?: UpdateTransactionOptions
   ) {
-    await apiEdit(
+    const updated = await apiEdit(
       transaction,
       options?.shouldRemoveFile ?? false,
       options?.file ?? undefined
     );
-    await refresh();
+
+    setTransactions((prev) => {
+      const next = prev.map((t) => (t.id === updated.id ? updated : t));
+
+      setTotalBalance(getTotalBalance(next));
+      return next;
+    });
   }
 
   return (
