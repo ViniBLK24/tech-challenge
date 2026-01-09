@@ -36,6 +36,7 @@ import { X, CloudUpload, MoveLeft } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { suggestCategory } from "@/utils/suggestCategory";
 import { getAccountData } from "@/utils/usersApi";
+import { logger } from "@/lib/logger";
 
 type Props = {
   transaction?: Transaction | null;
@@ -168,7 +169,7 @@ export default function TransactionActions({
         });
       }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       toast({
         title: "Algo deu errado.",
         description: "Falha na operação de deletar.",
@@ -212,7 +213,7 @@ export default function TransactionActions({
         await handleCreateTransaction(transactionData, file);
       }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       toast({
         title: "Algo deu errado.",
         description: "Falha na operação.",
@@ -251,7 +252,7 @@ export default function TransactionActions({
           });
         }
       } catch (err) {
-        console.log(err);
+        logger.error(err);
         toast({
           title: "Algo deu errado.",
           description: "Falha na criação de transferência.",
@@ -297,7 +298,7 @@ export default function TransactionActions({
           });
         }
       } catch (err) {
-        console.log(err);
+        logger.error(err);
         toast({
           title: "Algo deu errado.",
           description: "Falha na operação de editar.",

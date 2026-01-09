@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
+import { logger } from "@/lib/logger";
 
 // Componente de loading
 const LoadingComponent = () => (
@@ -37,7 +38,7 @@ export default function InvestmentsWrapper() {
         });
         setIsLoading(false);
       } catch (error) {
-        console.log('Microfrontend não disponível');
+        logger.log('Microfrontend não disponível');
         setUseFallback(true);
         setIsLoading(false);
       }

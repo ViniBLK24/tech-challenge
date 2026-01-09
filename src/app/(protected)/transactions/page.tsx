@@ -13,6 +13,7 @@ import TabletMenu from "@/components/TabletMenu";
 import TransactionActions from "@/components/TransactionAction";
 import Modal from "@/components/ui/Modal";
 import { createPortal } from "react-dom";
+import { logger } from "@/lib/logger";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -46,7 +47,7 @@ export default function TransactionsPage() {
       setFilteredTransactions(updatedTransactions);
       setCurrentPage(1);
     } catch (error) {
-      console.error("Error deleting transaction:", error);
+      logger.error("Error deleting transaction:", error);
     }
   }
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/utils/usersApi";
 import setCurrentUser from "@/utils/setCurrentUser";
+import { logger } from "@/lib/logger";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function LoginForm() {
     } catch (err) {
       if (err instanceof Error) {
         setErrorMessage(err.message);
-        console.log(err.message);
+        logger.error(err.message);
       } else {
         setErrorMessage("Erro inesperado.");
       }
