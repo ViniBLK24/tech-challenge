@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Modal from "../ui/Modal";
 import Image from "next/image";
-import { sanitizeText } from "@/lib/sanitize";
+import { sanitizeText, sanitizeUrl } from "@/lib/sanitize";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -106,10 +106,13 @@ export default function TransactionsTable({
                 <td className="px-6 py-4 text-muted-foreground flex align-end">
                   <ActionButton
                     onViewFile={
-                      transaction.fileUrl
+                      transaction.fileUrl && sanitizeUrl(transaction.fileUrl)
                         ? () => {
-                            setReceiptUrl(transaction.fileUrl);
-                            setIsReceiptModalOpen(true);
+                            const safeUrl = sanitizeUrl(transaction.fileUrl);
+                            if (safeUrl) {
+                              setReceiptUrl(safeUrl);
+                              setIsReceiptModalOpen(true);
+                            }
                           }
                         : undefined
                     }
@@ -131,10 +134,11 @@ export default function TransactionsTable({
       </table>
       {typeof window != "undefined" &&
         isReceiptModalOpen &&
+        sanitizeUrl(receiptUrl) &&
         createPortal(
           <Modal onClose={() => setIsReceiptModalOpen(false)}>
             <Image
-              src={receiptUrl}
+              src={sanitizeUrl(receiptUrl) || ""}
               alt="Comprovante da transação"
               width={800}
               height={800}

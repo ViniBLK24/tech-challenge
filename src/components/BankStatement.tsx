@@ -11,6 +11,7 @@ import Modal from "./ui/Modal";
 import Image from "next/image";
 import { Bar } from "react-chartjs-2";
 import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+import { sanitizeUrl } from "@/lib/sanitize";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function BankStatement(props: {
@@ -195,10 +196,13 @@ export default function BankStatement(props: {
                 <div className="flex column ">
                   <ActionButton
                     onViewFile={
-                      transaction.fileUrl
+                      transaction.fileUrl && sanitizeUrl(transaction.fileUrl)
                         ? () => {
-                            setReceiptUrl(transaction.fileUrl);
-                            setIsReceiptModalOpen(true);
+                            const safeUrl = sanitizeUrl(transaction.fileUrl);
+                            if (safeUrl) {
+                              setReceiptUrl(safeUrl);
+                              setIsReceiptModalOpen(true);
+                            }
                           }
                         : undefined
                     }
@@ -218,10 +222,11 @@ export default function BankStatement(props: {
       </Card>
       {typeof window != "undefined" &&
         isReceiptModalOpen &&
+        sanitizeUrl(receiptUrl) &&
         createPortal(
           <Modal onClose={() => setIsReceiptModalOpen(false)}>
             <Image
-              src={receiptUrl}
+              src={sanitizeUrl(receiptUrl) || ""}
               alt="Comprovante da transação"
               width={800}
               height={800}

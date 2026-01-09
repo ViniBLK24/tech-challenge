@@ -23,3 +23,32 @@ export function sanitizeHtml(text: string | null | undefined): string {
   div.textContent = String(text);
   return div.innerHTML;
 }
+
+export function isValidUrl(url: string | null | undefined): boolean {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+    const allowedProtocols = ['http:', 'https:'];
+    if (!allowedProtocols.includes(parsedUrl.protocol)) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function sanitizeUrl(url: string | null | undefined): string {
+  if (!url || typeof url !== 'string') {
+    return '';
+  }
+
+  if (!isValidUrl(url)) {
+    return '';
+  }
+
+  return url.trim();
+}

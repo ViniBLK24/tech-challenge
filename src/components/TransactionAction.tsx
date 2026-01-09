@@ -38,6 +38,7 @@ import { suggestCategory } from "@/utils/suggestCategory";
 import { getAccountData } from "@/utils/usersApi";
 import { logger } from "@/lib/logger";
 import { handleError, getErrorMessageFromResponse } from "@/lib/errorHandler";
+import { sanitizeText } from "@/lib/sanitize";
 
 type Props = {
   transaction?: Transaction | null;
@@ -91,13 +92,12 @@ export default function TransactionActions({
 
   useEffect(() => {
     if (transaction && isEditing) {
-      // If editing, populate the form with the transaction data
       setFormData({
         id: transaction.id ?? 0,
         type: transaction.type || "",
         amount: transaction.amount ? String(transaction.amount) : "",
-        description: transaction.description || "",
-        category: transaction.category || "",
+        description: sanitizeText(transaction.description) || "",
+        category: sanitizeText(transaction.category) || "",
         fileUrl: transaction.fileUrl || "",
       });
       if (transaction.fileUrl) {
@@ -130,15 +130,16 @@ export default function TransactionActions({
       value = currencyFormatter(value);
     }
 
-    setFormData((prev) => {
-      const updated = { ...prev, [field]: value };
+    const sanitizedValue = field === "description" || field === "category" ? sanitizeText(value) : value;
 
-      // Suggest category based on description (not category field)
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: sanitizedValue };
+
       if (field === "description") {
-        const suggested = suggestCategory(value);
+        const suggested = suggestCategory(sanitizedValue);
         if (suggested) {
-          updated.category = suggested;
-          setCategoryInput(suggested);
+          updated.category = sanitizeText(suggested);
+          setCategoryInput(sanitizeText(suggested));
         }
       }
 
@@ -202,10 +203,10 @@ export default function TransactionActions({
       type: formData.type as TransactionTypeEnum,
       amount: parseInt(removedSpecialCharacters),
       createdAt: transaction?.createdAt || new Date().toISOString(),
-      fileUrl: "", // Backend will handle this
+      fileUrl: "", 
       id: isEditing && transaction?.id ? transaction.id : undefined,
-      description: formData.description || undefined,
-      category: formData.category || undefined,
+      description: sanitizeText(formData.description) || undefined,
+      category: sanitizeText(formData.category) || undefined,
     };
 
     try {
