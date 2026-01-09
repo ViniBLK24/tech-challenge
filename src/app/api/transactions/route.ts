@@ -59,7 +59,6 @@ async function uploadFileToS3(buffer: Buffer, key: string, contentType: string) 
 // -- POST logic
 export async function POST(req: NextRequest) {
   const result = await readDb();
-  const totalBalance = getTotalBalance(result.transactions);
   const transactionId = Date.now();
 
   let userId: string = "";
@@ -75,6 +74,13 @@ export async function POST(req: NextRequest) {
   userId = formData.get("userId") as string;
   type = formData.get("type") as string;
   amount = Number(formData.get("amount"));
+
+  const userTransactions = result.transactions.filter(
+  (transaction) => transaction.userId === userId
+  );
+
+  const totalBalance = getTotalBalance(userTransactions);
+  
 
   (["description", "category"] as const).forEach((key) => {
     const value = formData.get(key);

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { Transaction } from "@/types/transactions";
 import {
   getTransactions,
@@ -41,17 +47,57 @@ export function TransactionsProvider({
 }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  async function refresh() {
+  // Fetch current user
+  useEffect(() => {
+    async function fetchAccountData() {
+      try {
+        const response = await fetch("/api/account");
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error("Error fetching account data:", data?.error);
+          return;
+        }
+
+        const userId = data?.result?.account?.[0]?.userId ?? null;
+        console.log("Current user id:", userId);
+
+        setCurrentUserId(userId);
+      } catch (error) {
+        console.error("Failed to fetch account data:", error);
+      }
+    }
+
+    fetchAccountData();
+  }, []);
+
+  //  Refresh transaction for current user
+  const refresh = useCallback(async () => {
+    if (!currentUserId) return;
+
     const data = await getTransactions();
-    setTransactions(data.transactions);
-    setTotalBalance(getTotalBalance(data.transactions));
-  }
+
+    const userTransactions = data.transactions.filter(
+      (transaction: Transaction) => transaction.userId === currentUserId
+    );
+    console.log("UserTransaction:", userTransactions);
+
+    setTransactions(userTransactions);
+    setTotalBalance(getTotalBalance(userTransactions));
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+    refresh();
+  }, [currentUserId, refresh]);
 
   async function createTransaction(transaction: Transaction, file?: File) {
     try {
-      const response = await apiCreate(transaction, file);
-      return response;
+      const success = await apiCreate(transaction, file);
+      if (success) await refresh();
+      return success;
     } catch (err) {
       console.error("Create transaction failed:", err);
       return false;
@@ -72,13 +118,8 @@ export function TransactionsProvider({
       options?.shouldRemoveFile ?? false,
       options?.file ?? undefined
     );
-
     await refresh();
   }
-
-  useEffect(() => {
-    refresh();
-  }, []);
 
   return (
     <TransactionsContext.Provider
