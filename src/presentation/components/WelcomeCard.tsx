@@ -11,6 +11,7 @@ import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import BackgroundShapes from "./ui/BackgroundShapes";
 import { useState } from "react";
+import { useTransactions } from "@/contexts/TransactionsContext";
 import { currencyFormatter } from "@/shared/lib/currencyFormatter";
 
 const capitalizeFirstLetter = (str: string) =>
@@ -30,14 +31,13 @@ const formatCurrentDate = () => {
 };
 
 interface WelcomeCardProps {
-  balance: number;
   userName?: string;
 }
 
 export default function WelcomeCard({
-  balance,
   userName = "Usuário",
 }: WelcomeCardProps) {
+  const { totalBalance } = useTransactions();
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   function onEyeClick() {
@@ -77,7 +77,7 @@ export default function WelcomeCard({
             R${" "}
             {isBalanceHidden
               ? "••••••"
-              : currencyFormatter((balance / 100).toFixed(2))}
+              : currencyFormatter((totalBalance / 100).toFixed(2))}
           </p>
         </div>
       </CardContent>

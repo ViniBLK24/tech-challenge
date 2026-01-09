@@ -17,7 +17,7 @@ import {
 } from "./ui/Select";
 import { Input } from "./ui/Input";
 import { Label } from "./ui/Label";
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib/lib/utils";
 import Image from "next/image";
 import BackgroundShapes from "./ui/BackgroundShapes";
 import { TransactionTypeEnum, Transaction } from "@/domain/entities";

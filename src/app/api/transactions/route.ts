@@ -30,6 +30,8 @@ const updateTransactionUseCase = new UpdateTransactionUseCase(
   calculateBalanceUseCase
 );
 const deleteTransactionUseCase = new DeleteTransactionUseCase(transactionRepository, s3Service);
+const MAX_FILE_SIZE = 1 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,44 +50,168 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
-    const userId = formData.get("userId") as string;
-    const type = formData.get("type") as string;
-    const amount = Number(formData.get("amount"));
+  const result = await dbRepository.read(); 
+  const transactionId = Date.now();
 
-    const optionalFields: Record<string, string> = {};
-    (["description", "category"] as const).forEach((key) => {
-      const value = formData.get(key);
-      if (value && typeof value === "string") {
-        optionalFields[key] = value;
-      }
-    });
+  let userId: string = "";
+  let type: string = "";
+  let amount: number = 0;
+  let fileUrl = "";
 
-    const transaction: Omit<Transaction, "id" | "createdAt"> = {
-      userId,
-      type: type as TransactionTypeEnum,
-      amount,
-      ...optionalFields,
-    };
+  const optionalFields: Record<string, string> = {};
 
-    const newTransaction = await createTransactionUseCase.execute(
-      transaction,
-      file && typeof file !== "string" ? file : undefined
-    );
+  // Handle multipart form-data (with file)
+  const formData = await req.formData();
+  const file = formData.get("file") as File | null;
+  userId = formData.get("userId") as string;
+  type = formData.get("type") as string;
+  amount = Number(formData.get("amount"));
 
-    const db = await dbRepository.read();
-    return NextResponse.json({ transactions: db.transactions }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        error: error.error || "Erro ao criar transação",
-        errorCode: error.errorCode || ErrorCodeEnum.REQUIRED_FIELDS,
-      },
-      { status: error.status || 400 }
-    );
+  const userTransactions = result.transactions.filter(
+  (transaction) => transaction.userId === userId
+  );
+
+  const calculateBalance = new CalculateBalanceUseCase();
+  const totalBalance = calculateBalance.execute(userTransactions);
+
+  // Checks if there is a pre-made category for inputted description
+  (["description", "category"] as const).forEach((key) => {
+    const value = formData.get(key);
+    if (value && typeof value === "string") {
+      optionalFields[key] = value;
+    }
+  });
+
+
+  if (!userId) {
+    return NextResponse.json({
+      error: "Parâmetro userId obrigatório",
+      errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+    }, { status: 400 });
   }
+
+  if (file && typeof file !== "string") {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: "Tipo de arquivo inválido.", errorCode: ErrorCodeEnum.INVALID_UPLOAD_FORMAT }, { status: 400 });
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "Arquivo muito grande (limite 1MB).", errorCode: ErrorCodeEnum.UPLOAD_FILE_TOO_BIG }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    fileUrl = await s3Service.uploadFile(buffer, transactionId.toString(), file.type);
+  }
+
+  // Basic validations
+  if (!type || !amount) {
+    // If any value is empty throw error
+    return NextResponse.json({
+      error: "Preencha todos os campos.",
+      errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+    }, { status: 402 });
+  }
+
+  if (!Object.values(TransactionTypeEnum).includes(type as TransactionTypeEnum)) {
+    // If transaction type is not valid (based on the enum)
+    return NextResponse.json({
+      error: "Tipo de transferência inválido.",
+      errorCode: ErrorCodeEnum.INVALID_TRANSFER_TYPE,
+    }, { status: 400 });
+  }
+
+  if (type === TransactionTypeEnum.TRANSFER && amount > totalBalance) {
+    // If transfer amount is bigger than total balance
+    return NextResponse.json({
+      error: "Saldo insuficiente.",
+      errorCode: ErrorCodeEnum.INSUFICIENT_FUNDS_TYPE,
+    }, { status: 400 });
+  }
+
+  // Create transaction
+  const newTransaction: Transaction = {
+    id: transactionId,
+    createdAt: new Date().toISOString(),
+    userId,
+    type: type as TransactionTypeEnum,
+    amount,
+    fileUrl,
+    ...optionalFields,
+  };
+
+  // Append the new transaction to the existing list and add date created and id
+  const updatedTransactions = {
+    ...result,
+    transactions: [...result.transactions, newTransaction],
+  };
+
+  await dbRepository.write(updatedTransactions);
+
+  return NextResponse.json(
+    { transactions: updatedTransactions.transactions },
+    { status: 200 }
+  );
+
+  // const result = await dbRepository.read();
+  // const transactionId = Date.now();
+
+  // try {
+  //   const formData = await req.formData();
+  //   const file = formData.get("file") as File | null;
+  //   const userId = formData.get("userId") as string;
+  //   const type = formData.get("type") as string;
+  //   const amount = Number(formData.get("amount"));
+
+  //   const optionalFields: Record<string, string> = {};
+  //   (["description", "category"] as const).forEach((key) => {
+  //     const value = formData.get(key);
+  //     if (value && typeof value === "string") {
+  //       optionalFields[key] = value;
+  //     }
+  //   });
+
+  //   const transaction: Omit<Transaction, "id" | "createdAt"> = {
+  //     userId,
+  //     type: type as TransactionTypeEnum,
+  //     amount,
+  //     ...optionalFields,
+  //   };
+
+  //   const newTransaction = await createTransactionUseCase.execute(
+  //     transaction,
+  //     file && typeof file !== "string" ? file : undefined
+  //   );
+
+  // const userTransactions = result.transactions.filter(
+  // (transaction) => transaction.userId === userId
+  // );
+
+  // const calculateBalance = new CalculateBalanceUseCase();
+  // const totalBalance = calculateBalance.execute(userTransactions);
+
+  // (["description", "category"] as const).forEach((key) => {
+  //   const value = formData.get(key);
+  //   if (value && typeof value === "string") {
+  //     optionalFields[key] = value;
+  //   }
+  // });
+
+
+  // if (!userId) {
+  //   return NextResponse.json({
+  //     error: "Parâmetro userId obrigatório",
+  //     errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+  //   }, { status: 400 });
+  //   const db = await dbRepository.read();
+  //   return NextResponse.json({ transactions: db.transactions }, { status: 200 });
+  // } catch (error: any) {
+  //   return NextResponse.json(
+  //     {
+  //       error: error.error || "Erro ao criar transação",
+  //       errorCode: error.errorCode || ErrorCodeEnum.REQUIRED_FIELDS,
+  //     },
+  //     { status: error.status || 400 }
+  //   );
+  // }
 }
 
 export async function PUT(req: NextRequest) {
