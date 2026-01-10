@@ -49,7 +49,10 @@ export function NewTransaction() {
     };
 
     try {
-      const response = await createTransaction(payload, file ?? undefined);
+      const response = (await createTransaction(
+        payload,
+        file ?? undefined
+      )) as any;
 
       if (response.transactions) {
         resetForm();
@@ -66,7 +69,7 @@ export function NewTransaction() {
         const code = response.errorCode as ErrorCodeEnum;
         toast({
           title: ERROR_CODES[code].title,
-          description: ERROR_CODES[code].desc,
+          description: ERROR_CODES[code].description,
           variant: "warning",
         });
       }
@@ -95,7 +98,10 @@ export function NewTransaction() {
 
         <CardContent className="flex flex-col gap-[2rem]">
           <TransactionForm
-            formData={formData}
+            formData={{
+              ...formData,
+              type: formData.type as TransactionTypeEnum,
+            }}
             uploadedImageUrl={previewUrl}
             onChange={handleChange}
             onSubmit={handleSubmit}

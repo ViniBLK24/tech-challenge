@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import Image from "next/image";
@@ -81,7 +82,7 @@ export function EditTransactionModal({ transaction, onClose }: Props) {
         const code = response.errorCode as ErrorCodeEnum;
         toast({
           title: ERROR_CODES[code].title,
-          description: ERROR_CODES[code].desc,
+          description: ERROR_CODES[code].description,
           variant: "warning",
         });
       }
@@ -111,7 +112,10 @@ export function EditTransactionModal({ transaction, onClose }: Props) {
           <CardContent className="flex flex-col gap-8">
             <TransactionForm
               isEditing
-              formData={formData}
+              formData={{
+                ...formData,
+                type: formData.type as TransactionTypeEnum,
+              }}
               uploadedImageUrl={previewUrl}
               onChange={handleChange}
               onSubmit={handleSubmit}

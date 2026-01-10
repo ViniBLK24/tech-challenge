@@ -1,5 +1,3 @@
-// Types for backend API responses
-
 export interface BackendUser {
   id: string;
   username: string;
@@ -33,3 +31,4 @@ export interface BackendError {
   message?: string;
   error?: string;
 }
+
