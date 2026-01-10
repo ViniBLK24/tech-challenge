@@ -10,11 +10,12 @@ import {
 import { Input } from "./ui/Input";
 import { Label } from "./ui/Label";
 import { Button, buttonVariants } from "./ui/Button";
-import { cn } from "@/shared/lib/lib/utils";
+
 import Image from "next/image";
 import { TransactionTypeEnum } from "@/types/transactions";
 import { X, CloudUpload, MoveLeft } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { cn } from "@/shared/lib/utils";
 
 export type TransactionFormData = {
   type: TransactionTypeEnum | undefined;
