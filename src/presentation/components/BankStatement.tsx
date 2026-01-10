@@ -18,6 +18,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { sanitizeUrl } from "@/shared/lib/sanitize";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import { useEditTransaction } from "@/contexts/EditTransactionContext";
 import { useTransactions } from "@/contexts/TransactionsContext";
@@ -219,10 +220,13 @@ export default function BankStatement() {
                 <div className="flex column ">
                   <ActionButton
                     onViewFile={
-                      transaction.fileUrl
+                      transaction.fileUrl && sanitizeUrl(transaction.fileUrl)
                         ? () => {
-                            setReceiptUrl(transaction.fileUrl);
-                            setIsReceiptModalOpen(true);
+                            const safeUrl = sanitizeUrl(transaction.fileUrl);
+                            if (safeUrl) {
+                              setReceiptUrl(safeUrl);
+                              setIsReceiptModalOpen(true);
+                            }
                           }
                         : undefined
                     }
@@ -244,10 +248,11 @@ export default function BankStatement() {
       </Card>
       {typeof window != "undefined" &&
         isReceiptModalOpen &&
+        sanitizeUrl(receiptUrl) &&
         createPortal(
           <Modal onClose={() => setIsReceiptModalOpen(false)}>
             <Image
-              src={receiptUrl}
+              src={sanitizeUrl(receiptUrl) || ""}
               alt="Comprovante da transação"
               width={800}
               height={800}

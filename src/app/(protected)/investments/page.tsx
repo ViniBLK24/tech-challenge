@@ -11,20 +11,12 @@ export default function Investments() {
 
   // Logout function
   async function handleLogout() {
-    console.log("handleLogout function called");
     try {
       await fetch("/api/users/logout", { method: "POST" });
-      console.log("Logout API call successful");
-      // Clear any local storage data
-      localStorage.removeItem("currentUser");
-      // Small delay to ensure cookie is cleared before redirect
       setTimeout(() => {
         router.push("/");
       }, 100);
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      // Clear local storage even on error
-      localStorage.removeItem("currentUser");
       setTimeout(() => {
         router.push("/");
       }, 100);
@@ -42,7 +34,9 @@ export default function Investments() {
           </div>
           <div className="flex flex-col gap-4 col-span-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">Investimentos</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                Investimentos
+              </h1>
               <InvestmentsWrapper />
             </div>
           </div>
@@ -50,4 +44,4 @@ export default function Investments() {
       </div>
     </div>
   );
-} 
+}

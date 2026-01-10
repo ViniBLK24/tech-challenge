@@ -34,6 +34,13 @@ import { ERROR_CODES } from "@/shared/constants/errors";
 import { currencyFormatter } from "@/shared/lib/currencyFormatter";
 import { X, CloudUpload, MoveLeft } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { suggestCategory } from "@/utils/suggestCategory";
+import { logger } from "@/shared/lib/logger";
+import {
+  handleError,
+  getErrorMessageFromResponse,
+} from "@/shared/lib/errorHandler";
+import { sanitizeText } from "@/shared/lib/sanitize";
 import { CategorySuggestionService } from "@/domain/services";
 import { getAccountData } from "@/presentation/api/users.api";
 
@@ -89,13 +96,12 @@ export default function TransactionActions({
 
   useEffect(() => {
     if (transaction && isEditing) {
-      // If editing, populate the form with the transaction data
       setFormData({
         id: transaction.id ?? 0,
         type: transaction.type || "",
         amount: transaction.amount ? String(transaction.amount) : "",
-        description: transaction.description || "",
-        category: transaction.category || "",
+        description: sanitizeText(transaction.description) || "",
+        category: sanitizeText(transaction.category) || "",
         fileUrl: transaction.fileUrl || "",
       });
       if (transaction.fileUrl) {
@@ -128,16 +134,20 @@ export default function TransactionActions({
       value = currencyFormatter(value);
     }
 
-    setFormData((prev) => {
-      const updated = { ...prev, [field]: value };
+    const sanitizedValue =
+      field === "description" || field === "category"
+        ? sanitizeText(value)
+        : value;
 
-      // Suggest category based on description (not category field)
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: sanitizedValue };
+
       if (field === "description") {
         const categoryService = new CategorySuggestionService();
         const suggested = categoryService.suggestCategory(value);
         if (suggested) {
-          updated.category = suggested;
-          setCategoryInput(suggested);
+          updated.category = sanitizeText(suggested);
+          setCategoryInput(sanitizeText(suggested));
         }
       }
 
@@ -160,19 +170,20 @@ export default function TransactionActions({
           duration: 4000,
         });
       } else {
-        const code = response.errorCode as ErrorCodeEnum;
+        const errorMsg = getErrorMessageFromResponse(response);
         toast({
-          title: ERROR_CODES[code].title,
-          description: ERROR_CODES[code].desc,
+          title: errorMsg.title,
+          description: errorMsg.description,
           variant: "warning",
           duration: 4000,
         });
       }
     } catch (err) {
-      console.log(err);
+      const errorMsg = handleError(err);
+      logger.error(err);
       toast({
-        title: "Algo deu errado.",
-        description: "Falha na operação de deletar.",
+        title: errorMsg.title,
+        description: errorMsg.description,
         variant: "destructive",
         duration: 4000,
       });
@@ -200,10 +211,10 @@ export default function TransactionActions({
       type: formData.type as TransactionTypeEnum,
       amount: parseInt(removedSpecialCharacters),
       createdAt: transaction?.createdAt || new Date().toISOString(),
-      fileUrl: "", // Backend will handle this
+      fileUrl: "",
       id: isEditing && transaction?.id ? transaction.id : undefined,
-      description: formData.description || undefined,
-      category: formData.category || undefined,
+      description: sanitizeText(formData.description) || undefined,
+      category: sanitizeText(formData.category) || undefined,
     };
 
     try {
@@ -213,10 +224,11 @@ export default function TransactionActions({
         await handleCreateTransaction(transactionData, file);
       }
     } catch (err) {
-      console.log(err);
+      const errorMsg = handleError(err);
+      logger.error(err);
       toast({
-        title: "Algo deu errado.",
-        description: "Falha na operação.",
+        title: errorMsg.title,
+        description: errorMsg.description,
         variant: "destructive",
         duration: 4000,
       });
@@ -243,19 +255,20 @@ export default function TransactionActions({
             duration: 4000,
           });
         } else {
-          const code = response.errorCode as ErrorCodeEnum;
+          const errorMsg = getErrorMessageFromResponse(response);
           toast({
-            title: ERROR_CODES[code].title,
-            description: ERROR_CODES[code].desc,
+            title: errorMsg.title,
+            description: errorMsg.description,
             variant: "warning",
             duration: 4000,
           });
         }
       } catch (err) {
-        console.log(err);
+        const errorMsg = handleError(err);
+        logger.error(err);
         toast({
-          title: "Algo deu errado.",
-          description: "Falha na criação de transferência.",
+          title: errorMsg.title,
+          description: errorMsg.description,
           variant: "destructive",
           duration: 4000,
         });
@@ -289,19 +302,20 @@ export default function TransactionActions({
             duration: 4000,
           });
         } else {
-          const code = response.errorCode as ErrorCodeEnum;
+          const errorMsg = getErrorMessageFromResponse(response);
           toast({
-            title: ERROR_CODES[code].title,
-            description: ERROR_CODES[code].desc,
+            title: errorMsg.title,
+            description: errorMsg.description,
             variant: "warning",
             duration: 4000,
           });
         }
       } catch (err) {
-        console.log(err);
+        const errorMsg = handleError(err);
+        logger.error(err);
         toast({
-          title: "Algo deu errado.",
-          description: "Falha na operação de editar.",
+          title: errorMsg.title,
+          description: errorMsg.description,
           variant: "destructive",
           duration: 4000,
         });

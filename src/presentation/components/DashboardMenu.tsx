@@ -14,6 +14,7 @@ import { Menu, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { getAccountData } from "@/utils/usersApi";
+import { sanitizeText } from "@/shared/lib/sanitize";
 
 interface DashboardMenuProps {
   onLogout?: () => void;
@@ -24,8 +25,8 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
 
   useEffect(() => {
     const fetchAccountData = async () => {
-        const accountData = await getAccountData();
-        setUserName(accountData.username);
+      const accountData = await getAccountData();
+      setUserName(sanitizeText(accountData.username) || "Usuário");
     };
     fetchAccountData();
   }, []);
@@ -70,7 +71,7 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
           >
             <MenubarItem className="flex gap-x-3 bg-gray-200">
               <Avatar className="border-[2.5px] border-black w-6 h-6">
-                <AvatarImage src="" alt={userName} />
+                <AvatarImage src="" alt={sanitizeText(userName)} />
                 <AvatarFallback className="bg-transparent">
                   <User className="w-10 h-10 text-black" />
                 </AvatarFallback>
@@ -80,7 +81,7 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && e.currentTarget.click()}
               >
-                {userName}
+                {sanitizeText(userName)}
               </Link>
             </MenubarItem>
             <MenubarSeparator />
@@ -160,7 +161,7 @@ export default function DashboardMenu({ onLogout }: DashboardMenuProps) {
           </Link>
         </div>
         <div className="flex gap-6 items-center">
-          <p className="text-white">{userName}</p>
+          <p className="text-white">{sanitizeText(userName)}</p>
           <Avatar className="border-[2.5px] border-primary">
             <AvatarImage src="" alt="" />
             <AvatarFallback className="bg-transparent">

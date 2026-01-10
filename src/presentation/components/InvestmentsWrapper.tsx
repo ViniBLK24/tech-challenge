@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { ExternalLink } from "lucide-react";
+import { logger } from "@/shared/lib/logger";
 
 // Componente de loading
 const LoadingComponent = () => (
@@ -31,13 +32,13 @@ export default function InvestmentsWrapper() {
     // Verificar se o microfrontend está disponível
     const checkMicrofrontend = async () => {
       try {
-        const response = await fetch('https://investiment-mf.vercel.app/', {
-          method: 'HEAD',
-          mode: 'no-cors',
+        const response = await fetch("https://investiment-mf.vercel.app/", {
+          method: "HEAD",
+          mode: "no-cors",
         });
         setIsLoading(false);
       } catch (error) {
-        console.log('Microfrontend não disponível');
+        logger.log("Microfrontend não disponível");
         setUseFallback(true);
         setIsLoading(false);
       }
@@ -60,8 +61,9 @@ export default function InvestmentsWrapper() {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Meus Investimentos</h2>
-      
+          <h2 className="text-2xl font-bold text-gray-900">
+            Meus Investimentos
+          </h2>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
           <div className="text-gray-400 text-4xl mb-4">📊</div>
@@ -71,7 +73,6 @@ export default function InvestmentsWrapper() {
           <p className="text-gray-600 mb-4">
             O microfrontend de investimentos não está disponível no momento.
           </p>
-          
         </div>
       </div>
     );
@@ -81,9 +82,8 @@ export default function InvestmentsWrapper() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Meus Investimentos</h2>
-    
       </div>
-      
+
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <iframe
           src="https://investiment-mf.vercel.app/"
@@ -98,4 +98,4 @@ export default function InvestmentsWrapper() {
       </div>
     </div>
   );
-} 
+}

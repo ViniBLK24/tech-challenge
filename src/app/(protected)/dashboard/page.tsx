@@ -14,6 +14,9 @@ import { CalculateBalanceUseCase } from "@/domain/use-cases/transactions";
 import BankStatement from "@/presentation/components/BankStatement";
 import { Transaction } from "@/domain/entities";
 import { useRouter } from "next/navigation";
+import { sanitizeText } from "@/shared/lib/sanitize";
+import { logger } from "@/shared/lib/logger";
+import { handleError } from "@/shared/lib/errorHandler";
 import { NewTransaction } from "@/presentation/components/NewTransaction";
 import { EditTransactionProvider } from "@/contexts/EditTransactionContext";
 import { TransactionsProvider } from "@/contexts/TransactionsContext";
@@ -35,16 +38,18 @@ export default function Dashboard() {
         const data = await response.json();
 
         if (!response.ok) {
-          console.error("Error fetching account data:", data.error);
-          // For errors, continue with empty state
+          const errorMsg = handleError(data);
+          logger.error("Error fetching account data:", errorMsg.description);
           setTransactions([]);
           setTotalBalance(0);
           return;
         }
-        setUserName(data.result.account[0]["username"].split(" ")[0]); // Only gets user's first name
+        const rawUsername =
+          data.result.account[0]["username"]?.split(" ")[0] || "";
+        setUserName(sanitizeText(rawUsername));
       } catch (error) {
-        console.error("Erro ao buscar dados da conta:", error);
-        // For errors, continue with empty state
+        const errorMsg = handleError(error);
+        logger.error("Erro ao buscar dados da conta:", errorMsg.description);
         setTransactions([]);
         setTotalBalance(0);
       }
@@ -63,20 +68,12 @@ export default function Dashboard() {
 
   // Logout function
   async function handleLogout() {
-    console.log("handleLogout function called");
     try {
       await fetch("/api/users/logout", { method: "POST" });
-      console.log("Logout API call successful");
-      // Clear any local storage data
-      localStorage.removeItem("currentUser");
-      // Small delay to ensure cookie is cleared before redirect
       setTimeout(() => {
         router.push("/");
       }, 100);
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      // Clear local storage even on error
-      localStorage.removeItem("currentUser");
       setTimeout(() => {
         router.push("/");
       }, 100);

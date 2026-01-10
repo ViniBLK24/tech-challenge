@@ -1,5 +1,7 @@
-import { User } from "@/types/user";
-import { RegisterResponse, BackendError } from "@/types/auth";
+import { User } from "@/domain/entities";
+import { sanitizeText } from "@/shared/lib/sanitize";
+import { handleApiError } from "@/shared/lib/errorHandler";
+import { RegisterResponse } from "@/shared/types/auth";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -18,32 +20,39 @@ export async function createUser(user: User): Promise<RegisterResponse> {
   const data = await response.json();
 
   if (!response.ok) {
-    const error = data as BackendError;
-    throw new Error(error.message || error.error || "Erro ao criar usuário.");
+    const errorMsg = handleApiError(response);
+    throw new Error(errorMsg.description);
   }
 
   return data as RegisterResponse;
 }
 
 // Login user - now calls our internal API route that handles backend integration
-export async function loginUser(email: string, password: string): Promise<{ user: { id: string; userName: string; email: string } }> {
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<{ user: { id: string; userName: string; email: string } }> {
   const response = await fetch("/api/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  
+
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Erro ao logar usuário.");
+    const errorMsg = handleApiError(response);
+    throw new Error(errorMsg.description);
   }
 
   return data;
 }
 
 // Get account data
-export async function getAccountData(): Promise<{ username: string, userId: string }> {
+export async function getAccountData(): Promise<{
+  username: string;
+  userId: string;
+}> {
   const response = await fetch("/api/account", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -52,12 +61,13 @@ export async function getAccountData(): Promise<{ username: string, userId: stri
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Erro ao buscar dados da conta.");
+    const errorMsg = handleApiError(response);
+    throw new Error(errorMsg.description);
   }
 
-  // Extract username from the account data
-  const username = data.result?.account?.[0]?.username || "Usuário";
+  const rawUsername = data.result?.account?.[0]?.username || "Usuário";
+  const username = sanitizeText(rawUsername) || "Usuário";
   const userId = data.result.account?.[0]?.userId;
-  
+
   return { username, userId };
 }

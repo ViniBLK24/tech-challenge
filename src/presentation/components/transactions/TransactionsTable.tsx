@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Modal from "../ui/Modal";
 import Image from "next/image";
+import { sanitizeText, sanitizeUrl } from "@/shared/lib/sanitize";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -99,18 +100,25 @@ export default function TransactionsTable({
                     type={transaction.type}
                   />
                 </td>
-                <td className="px-6 py-4 ">{transaction.description}</td>
-                <td className="px-6 py-4 ">{transaction.category}</td>
+                <td className="px-6 py-4 ">
+                  {sanitizeText(transaction.description)}
+                </td>
+                <td className="px-6 py-4 ">
+                  {sanitizeText(transaction.category)}
+                </td>
                 <td className="px-6 py-4 text-muted-foreground">
                   {formatDate(transaction.createdAt)}
                 </td>
                 <td className="px-6 py-4 text-muted-foreground flex align-end">
                   <ActionButton
                     onViewFile={
-                      transaction.fileUrl
+                      transaction.fileUrl && sanitizeUrl(transaction.fileUrl)
                         ? () => {
-                            setReceiptUrl(transaction.fileUrl);
-                            setIsReceiptModalOpen(true);
+                            const safeUrl = sanitizeUrl(transaction.fileUrl);
+                            if (safeUrl) {
+                              setReceiptUrl(safeUrl);
+                              setIsReceiptModalOpen(true);
+                            }
                           }
                         : undefined
                     }
@@ -134,10 +142,11 @@ export default function TransactionsTable({
       </table>
       {typeof window != "undefined" &&
         isReceiptModalOpen &&
+        sanitizeUrl(receiptUrl) &&
         createPortal(
           <Modal onClose={() => setIsReceiptModalOpen(false)}>
             <Image
-              src={receiptUrl}
+              src={sanitizeUrl(receiptUrl) || ""}
               alt="Comprovante da transação"
               width={800}
               height={800}

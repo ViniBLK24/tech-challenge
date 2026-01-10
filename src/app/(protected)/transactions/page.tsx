@@ -16,6 +16,8 @@ import TabletMenu from "@/presentation/components/TabletMenu";
 import TransactionActions from "@/presentation/components/TransactionAction";
 import Modal from "@/presentation/components/ui/Modal";
 import { createPortal } from "react-dom";
+import { logger } from "@/shared/lib/logger";
+import { handleError } from "@/shared/lib/errorHandler";
 import { EditTransactionProvider } from "@/contexts/EditTransactionContext";
 import { useTransactions } from "@/contexts/TransactionsContext";
 

@@ -23,13 +23,18 @@ const createTransactionUseCase = new CreateTransactionUseCase(
   s3Service,
   calculateBalanceUseCase
 );
-const getTransactionsUseCase = new GetTransactionsUseCase(transactionRepository);
+const getTransactionsUseCase = new GetTransactionsUseCase(
+  transactionRepository
+);
 const updateTransactionUseCase = new UpdateTransactionUseCase(
   transactionRepository,
   s3Service,
   calculateBalanceUseCase
 );
-const deleteTransactionUseCase = new DeleteTransactionUseCase(transactionRepository, s3Service);
+const deleteTransactionUseCase = new DeleteTransactionUseCase(
+  transactionRepository,
+  s3Service
+);
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 
@@ -50,7 +55,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const result = await dbRepository.read(); 
+  const result = await dbRepository.read();
   const transactionId = Date.now();
 
   let userId: string = "";
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
   amount = Number(formData.get("amount"));
 
   const userTransactions = result.transactions.filter(
-  (transaction) => transaction.userId === userId
+    (transaction) => transaction.userId === userId
   );
 
   const calculateBalance = new CalculateBalanceUseCase();
@@ -82,49 +87,78 @@ export async function POST(req: NextRequest) {
     }
   });
 
-
   if (!userId) {
-    return NextResponse.json({
-      error: "Parâmetro userId obrigatório",
-      errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
-    }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: "Parâmetro userId obrigatório",
+        errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+      },
+      { status: 400 }
+    );
   }
 
   if (file && typeof file !== "string") {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Tipo de arquivo inválido.", errorCode: ErrorCodeEnum.INVALID_UPLOAD_FORMAT }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Tipo de arquivo inválido.",
+          errorCode: ErrorCodeEnum.INVALID_UPLOAD_FORMAT,
+        },
+        { status: 400 }
+      );
     }
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: "Arquivo muito grande (limite 1MB).", errorCode: ErrorCodeEnum.UPLOAD_FILE_TOO_BIG }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Arquivo muito grande (limite 1MB).",
+          errorCode: ErrorCodeEnum.UPLOAD_FILE_TOO_BIG,
+        },
+        { status: 400 }
+      );
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    fileUrl = await s3Service.uploadFile(buffer, transactionId.toString(), file.type);
+    fileUrl = await s3Service.uploadFile(
+      buffer,
+      transactionId.toString(),
+      file.type
+    );
   }
 
   // Basic validations
   if (!type || !amount) {
     // If any value is empty throw error
-    return NextResponse.json({
-      error: "Preencha todos os campos.",
-      errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
-    }, { status: 402 });
+    return NextResponse.json(
+      {
+        error: "Preencha todos os campos.",
+        errorCode: ErrorCodeEnum.REQUIRED_FIELDS,
+      },
+      { status: 402 }
+    );
   }
 
-  if (!Object.values(TransactionTypeEnum).includes(type as TransactionTypeEnum)) {
+  if (
+    !Object.values(TransactionTypeEnum).includes(type as TransactionTypeEnum)
+  ) {
     // If transaction type is not valid (based on the enum)
-    return NextResponse.json({
-      error: "Tipo de transferência inválido.",
-      errorCode: ErrorCodeEnum.INVALID_TRANSFER_TYPE,
-    }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: "Tipo de transferência inválido.",
+        errorCode: ErrorCodeEnum.INVALID_TRANSFER_TYPE,
+      },
+      { status: 400 }
+    );
   }
 
   if (type === TransactionTypeEnum.TRANSFER && amount > totalBalance) {
     // If transfer amount is bigger than total balance
-    return NextResponse.json({
-      error: "Saldo insuficiente.",
-      errorCode: ErrorCodeEnum.INSUFICIENT_FUNDS_TYPE,
-    }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: "Saldo insuficiente.",
+        errorCode: ErrorCodeEnum.INSUFICIENT_FUNDS_TYPE,
+      },
+      { status: 400 }
+    );
   }
 
   // Create transaction
@@ -194,7 +228,6 @@ export async function POST(req: NextRequest) {
   //     optionalFields[key] = value;
   //   }
   // });
-
 
   // if (!userId) {
   //   return NextResponse.json({
@@ -297,4 +330,3 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
-

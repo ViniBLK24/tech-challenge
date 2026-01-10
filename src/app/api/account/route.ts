@@ -1,26 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { requireAuth, getAuthToken } from "@/shared/lib/auth";
 import { AccountResponse, BackendError } from "@/shared/types/auth";
+import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-// Get account data
 export async function GET(req: NextRequest) {
   try {
-    // Get auth token from cookies
-    const token = req.cookies.get("auth-token")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Token de autenticação não encontrado." },
-        { status: 401 }
-      );
+    const authError = requireAuth(req);
+    if (authError) {
+      return authError;
     }
 
-    // Call backend API
+    const token = getAuthToken(req);
     const response = await fetch(`${BACKEND_API_URL}/account`, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -30,7 +25,10 @@ export async function GET(req: NextRequest) {
     if (!response.ok) {
       const error = data as BackendError;
       return NextResponse.json(
-        { error: error.message || error.error || "Erro ao buscar dados da conta." },
+        {
+          error:
+            error.message || error.error || "Erro ao buscar dados da conta.",
+        },
         { status: response.status }
       );
     }

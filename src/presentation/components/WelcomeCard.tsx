@@ -11,6 +11,7 @@ import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import BackgroundShapes from "./ui/BackgroundShapes";
 import { useState } from "react";
+import { sanitizeText } from "@/shared/lib/sanitize";
 import { useTransactions } from "@/contexts/TransactionsContext";
 import { currencyFormatter } from "@/shared/lib/currencyFormatter";
 
@@ -39,6 +40,7 @@ export default function WelcomeCard({
 }: WelcomeCardProps) {
   const { totalBalance } = useTransactions();
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const sanitizedUserName = sanitizeText(userName) || "Usuário";
 
   function onEyeClick() {
     setIsBalanceHidden((prev) => !prev);
@@ -51,7 +53,7 @@ export default function WelcomeCard({
       <CardHeader className="flex flex-col md:items-start md:gap-y-10">
         <div>
           <CardTitle className="text-white text-3xl">
-            Olá, {userName}! :)
+            Olá, {sanitizedUserName}! :)
           </CardTitle>
           <CardDescription className="text-md md:mt-2">
             {formatCurrentDate()}

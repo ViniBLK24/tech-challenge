@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { logger } from "@/shared/lib/logger";
+import { handleError } from "@/shared/lib/errorHandler";
 import { User } from "@/domain/entities";
 import { createUser } from "@/presentation/api/users.api";
 import setCurrentUser from "@/shared/lib/setCurrentUser";
@@ -16,6 +18,28 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (inputName.trim().length < 2) {
+      setErrorMessage("O nome deve ter no mínimo 2 caracteres.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inputEmail)) {
+      setErrorMessage("Por favor, insira um email válido.");
+      return;
+    }
+
+    if (inputPassword.length < 8) {
+      setErrorMessage("A senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)/;
+    if (!passwordRegex.test(inputPassword)) {
+      setErrorMessage("A senha deve conter pelo menos uma letra e um número.");
+      return;
+    }
+
     const registerUser: User = {
       userName: inputName,
       email: inputEmail,
@@ -27,7 +51,7 @@ export default function RegisterForm() {
 
       const { username, email, id } = response.result;
       const safeUser = { id, userName: username, email };
-      setCurrentUser(safeUser);
+      setCurrentUser(safeUser.id);
 
       // After successful registration, automatically login the user
       try {
@@ -44,17 +68,13 @@ export default function RegisterForm() {
           router.push("/dashboard");
         }
       } catch (loginError) {
-        console.error("Auto-login failed:", loginError);
-        // Still redirect to dashboard
+        logger.error("Auto-login failed:", loginError);
         router.push("/dashboard");
       }
     } catch (err) {
-      if (err instanceof Error) {
-        setErrorMessage(err.message);
-        console.log(err.message);
-      } else {
-        setErrorMessage("Erro inesperado.");
-      }
+      const errorMsg = handleError(err);
+      setErrorMessage(errorMsg.description);
+      logger.error(err);
     }
   };
 
