@@ -13,14 +13,16 @@ import { sanitizeText, sanitizeUrl } from "@/shared/lib/sanitize";
 interface TransactionsTableProps {
   transactions: Transaction[];
   formatDate: (date: string) => string;
-  onTransactionSelect: (transaction: Transaction, isEditing: boolean) => void;
 }
+import { useEditTransaction } from "@/contexts/EditTransactionContext";
+import { useTransactions } from "@/contexts/TransactionsContext";
 
 export default function TransactionsTable({
   transactions,
   formatDate,
-  onTransactionSelect,
 }: TransactionsTableProps) {
+  const { deleteTransaction } = useTransactions();
+  const { openEdit } = useEditTransaction();
   const [isLoading, setIsLoading] = useState(true);
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
@@ -120,8 +122,10 @@ export default function TransactionsTable({
                           }
                         : undefined
                     }
-                    onEdit={() => onTransactionSelect(transaction, true)}
-                    onDelete={() => onTransactionSelect(transaction, false)}
+                    onEdit={() => openEdit(transaction)}
+                    onDelete={async () => {
+                      await deleteTransaction(transaction);
+                    }}
                   />
                 </td>
               </tr>

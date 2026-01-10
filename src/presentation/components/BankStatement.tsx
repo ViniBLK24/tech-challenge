@@ -20,11 +20,12 @@ import {
 } from "chart.js";
 import { sanitizeUrl } from "@/shared/lib/sanitize";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import { useEditTransaction } from "@/contexts/EditTransactionContext";
+import { useTransactions } from "@/contexts/TransactionsContext";
 
-export default function BankStatement(props: {
-  handleAction?: (transaction: Transaction, isEditing: boolean) => void;
-  transactions: Transaction[];
-}) {
+export default function BankStatement() {
+  const { transactions, deleteTransaction } = useTransactions();
+  const { openEdit } = useEditTransaction();
   const [transactionsData, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
@@ -36,11 +37,11 @@ export default function BankStatement(props: {
   >([]);
 
   useEffect(() => {
-    if (!props.transactions) return;
+    if (!transactions) return;
     setIsLoading(true);
-    setTransactions(props.transactions.slice(0, 8));
+    setTransactions(transactions.slice(0, 8));
     setIsLoading(false);
-  }, [props.transactions]);
+  }, [transactions]);
 
   useEffect(() => {
     // Filtra por data
@@ -229,8 +230,10 @@ export default function BankStatement(props: {
                           }
                         : undefined
                     }
-                    onEdit={() => props.handleAction?.(transaction, true)}
-                    onDelete={() => props.handleAction?.(transaction, false)}
+                    onEdit={() => openEdit(transaction)}
+                    onDelete={async () => {
+                      await deleteTransaction(transaction);
+                    }}
                   />
                 </div>
               </div>

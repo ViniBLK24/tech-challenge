@@ -12,6 +12,7 @@ import Image from "next/image";
 import BackgroundShapes from "./ui/BackgroundShapes";
 import { useState } from "react";
 import { sanitizeText } from "@/shared/lib/sanitize";
+import { useTransactions } from "@/contexts/TransactionsContext";
 import { currencyFormatter } from "@/shared/lib/currencyFormatter";
 
 const capitalizeFirstLetter = (str: string) =>
@@ -31,14 +32,13 @@ const formatCurrentDate = () => {
 };
 
 interface WelcomeCardProps {
-  balance: number;
   userName?: string;
 }
 
 export default function WelcomeCard({
-  balance,
   userName = "Usuário",
 }: WelcomeCardProps) {
+  const { totalBalance } = useTransactions();
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const sanitizedUserName = sanitizeText(userName) || "Usuário";
 
@@ -79,7 +79,7 @@ export default function WelcomeCard({
             R${" "}
             {isBalanceHidden
               ? "••••••"
-              : currencyFormatter((balance / 100).toFixed(2))}
+              : currencyFormatter((totalBalance / 100).toFixed(2))}
           </p>
         </div>
       </CardContent>

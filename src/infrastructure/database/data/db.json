@@ -1,7 +1,40 @@
 {
-  "users": [
-  ],
+  "users": [],
   "transactions": [
-    
+    {
+      "id": 1767979572559,
+      "createdAt": "2026-01-09T17:26:12.560Z",
+      "userId": "6961327d94af7c5a3fc973e3",
+      "type": "deposit",
+      "amount": 1000,
+      "fileUrl": ""
+    },
+    {
+      "id": 1767983565540,
+      "createdAt": "2026-01-09T18:32:45.544Z",
+      "userId": "69613fb534a748c555490e9f",
+      "type": "deposit",
+      "amount": 4500,
+      "fileUrl": "",
+      "updatedAt": "2026-01-09T18:51:17.594Z"
+    },
+    {
+      "id": 1767984068457,
+      "createdAt": "2026-01-09T18:41:08.461Z",
+      "userId": "69613fb534a748c555490e9f",
+      "type": "deposit",
+      "amount": 6500,
+      "fileUrl": "",
+      "updatedAt": "2026-01-09T18:52:31.205Z"
+    },
+    {
+      "id": 1767985383902,
+      "createdAt": "2026-01-09T19:03:03.906Z",
+      "userId": "69613fb534a748c555490e9f",
+      "type": "transfer",
+      "amount": 2000,
+      "fileUrl": "",
+      "updatedAt": "2026-01-09T19:04:00.559Z"
+    }
   ]
 }

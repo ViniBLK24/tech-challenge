@@ -1,4 +1,4 @@
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib/lib/utils";
 import { Button, buttonVariants } from "./Button";
 import { Pencil, Trash2, File } from "lucide-react";
 

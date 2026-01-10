@@ -47,8 +47,8 @@ export async function editTransaction(transaction: Transaction, removeFile: bool
   const formData = new FormData();
 
   formData.append("type", transaction.type);
-  formData.append("amount", transaction.amount.toString());
-  formData.append("id", transaction.id!.toString()); // assume id exists for edit
+  formData.append("amount", String(transaction.amount));
+  formData.append("id", String(transaction.id!)); // assume id exists for edit
   formData.append("removeFile", removeFile ? "true" : "false");
 
   // Append file to formData if it exists
